@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const ChatList = ({ channels }) => (
+import * as actions from '../store/actions';
+
+const ChatList = ({ dispatch, channels }) => (
   <div className="chat-list">
     <h2>CHAT LIST</h2>
     <div className="chat-list-body channels">
@@ -9,15 +11,28 @@ const ChatList = ({ channels }) => (
       && <div data-test-id="message" className="alert alert-info">Empty</div>
       }
 
-      { channels.map(chat => (
-        <div className="channel" key={chat.id}>{chat.name}</div>
-      )) }
+      {channels.map(channel => (
+        <div
+          key={channel.id}
+          className="channel"
+          role="button"
+          tabIndex={0}
+          onClick={() => dispatch(actions.selectChannel(channel))}
+          onKeyDown={() => null}
+        >
+          {channel.name}
+        </div>
+      ))}
     </div>
   </div>
 );
 
 ChatList.propTypes = {
-  channels: PropTypes.arrayOf.isRequired,
+  dispatch: PropTypes.func.isRequired,
+  channels: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+  })).isRequired,
 };
 
 export default ChatList;

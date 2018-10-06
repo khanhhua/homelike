@@ -12,7 +12,7 @@ export default () => (
       <Row>
         <Col md={4}>
           <AppContext.Consumer>
-            {({ channels }) => <ChatList channels={channels} />
+            {({ channels, dispatch }) => <ChatList channels={channels} dispatch={dispatch} />
           }
           </AppContext.Consumer>
         </Col>

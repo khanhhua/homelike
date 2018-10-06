@@ -11,12 +11,12 @@
     "react/jsx-filename-extension": "off",
     "import/prefer-default-export": "off",
     "no-unused-vars": ["error", { "vars": "all", "argsIgnorePattern": "^_" }],
-    "babel/new-cap": 1,
+    "babel/new-cap": 0,
     "babel/no-invalid-this": 1,
-    "babel/object-curly-spacing": 1,
+    "babel/object-curly-spacing": 0,
     "babel/quotes": 0,
-    "babel/semi": 1,
-    "babel/no-unused-expressions": 1,
-    "babel/valid-typeof": 1
+    "babel/semi": 0,
+    "babel/no-unused-expressions": 0,
+    "babel/valid-typeof": 0
   }
 }

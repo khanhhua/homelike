@@ -1,1 +1,2 @@
-export const ACTION_LOAD_CHANNELS = 'load-channels'; // eslint-ignore-line
+export const ACTION_LOAD_CHANNELS = 'load-channels';
+export const ACTION_SELECT_CHANNEL = 'select-channel';

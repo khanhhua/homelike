@@ -1,4 +1,7 @@
-import { ACTION_LOAD_CHANNELS } from './action-types';
+import {
+  ACTION_LOAD_CHANNELS,
+  ACTION_SELECT_CHANNEL,
+} from './action-types';
 
 import * as api from './api';
 import { ACTION_STATUS_ERROR, ACTION_STATUS_PENDING, ACTION_STATUS_SUCESS } from './action-statuses';
@@ -14,4 +17,8 @@ export const loadChannels = () => async (dispatch) => {
   } catch (e) {
     dispatch(action(ACTION_LOAD_CHANNELS, ACTION_STATUS_ERROR, e));
   }
+};
+
+export const selectChannel = channel => async (dispatch) => {
+  dispatch(action(ACTION_SELECT_CHANNEL, ACTION_STATUS_SUCESS, channel));
 };
