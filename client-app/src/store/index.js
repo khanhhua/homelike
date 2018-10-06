@@ -6,11 +6,13 @@ import thunk from 'redux-thunk';
 import users from './users';
 import chats from './chats';
 import channels from './channels';
+import active from './active';
 
 const rootReducer = combineReducers({
   users,
   channels,
   chats,
+  active,
 });
 
 const initialState = Immutable.Map();

@@ -11,18 +11,23 @@ const ChatList = ({ dispatch, channels }) => (
       && <div data-test-id="message" className="alert alert-info">Empty</div>
       }
 
-      {channels.map(channel => (
-        <div
-          key={channel.id}
-          className="channel"
-          role="button"
-          tabIndex={0}
-          onClick={() => dispatch(actions.selectChannel(channel))}
-          onKeyDown={() => null}
-        >
-          {channel.name}
-        </div>
-      ))}
+      {channels.map((channel) => {
+        const c = channel;
+        return (
+          <div
+            key={channel.id}
+            className="channel"
+            role="button"
+            tabIndex={0}
+            onClick={() => {
+              dispatch(actions.selectChannel(c));
+            }}
+            onKeyDown={() => null}
+          >
+            {channel.name}
+          </div>
+        );
+      })}
     </div>
   </div>
 );

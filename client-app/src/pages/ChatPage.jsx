@@ -17,7 +17,14 @@ export default () => (
           </AppContext.Consumer>
         </Col>
         <Col md={8}>
-          <ChatDetail />
+          <AppContext.Consumer>
+            {({ active }) => (
+              <ChatDetail
+                channel={active.channel || null}
+                messages={active.messages || []}
+              />
+            )}
+          </AppContext.Consumer>
         </Col>
       </Row>
     </Grid>

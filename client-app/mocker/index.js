@@ -12,6 +12,7 @@ const proxy = {
   },
   // =====================
   'GET /api/channels': require('./channels.json'),
-  'GET /api/channels/1': require('./channel-1.json')
+  'GET /api/channels/1': require('./channel-1.json'),
+  'GET /api/channels/2': require('./channel-2.json'),
 }
 module.exports = proxy;

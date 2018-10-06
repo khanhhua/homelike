@@ -33,11 +33,19 @@ class App extends Component {
   }
 }
 
-const mapStateToProps = (state = {}) => ({
-  users: state.get('users'),
-  channels: state.get('channels'),
-  chats: state.get('chats'),
-});
+const mapStateToProps = (state = {}) => {
+  console.log('mapStateToProps...');
+  const active = state.get('active');
+
+  return {
+    users: state.get('users'),
+    channels: state.get('channels').valueSeq().toJS(),
+    active: {
+      channel: active ? state.getIn(['channels', active]) : null,
+      messages: active && state.getIn(['chats', active]) ? state.getIn(['chats', active]).toJS() : [],
+    },
+  };
+};
 const mapDispatchToProps = dispatch => ({
   dispatch,
 });
