@@ -1,0 +1,14 @@
+[
+  {
+    "id": "1",
+    "name": "Channel 1",
+    "createdAt": "2018-10-01T00:00:00Z",
+    "lastMsgAt": "2018-10-01T00:00:00Z"
+  },
+  {
+    "id": "2",
+    "name": "Channel 2",
+    "createdAt": "2018-10-02T00:00:00Z",
+    "lastMsgAt": "2018-10-02T00:10:00Z"
+  }
+]

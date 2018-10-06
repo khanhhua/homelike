@@ -6,7 +6,6 @@
     "@babel/core": "7.1.0",
     "@svgr/webpack": "2.4.1",
     "babel-core": "7.0.0-bridge.0",
-    "babel-eslint": "9.0.0",
     "babel-jest": "23.6.0",
     "babel-loader": "8.0.4",
     "babel-plugin-named-asset-import": "^0.2.2",
@@ -18,17 +17,14 @@
     "css-loader": "1.0.0",
     "dotenv": "6.0.0",
     "dotenv-expand": "4.2.0",
-    "eslint": "5.6.0",
     "eslint-config-react-app": "^3.0.3",
     "eslint-loader": "2.1.1",
     "eslint-plugin-flowtype": "2.50.1",
-    "eslint-plugin-import": "2.14.0",
-    "eslint-plugin-jsx-a11y": "6.1.1",
-    "eslint-plugin-react": "7.11.1",
     "file-loader": "2.0.0",
     "fs-extra": "7.0.0",
     "html-webpack-plugin": "4.0.0-alpha.2",
     "identity-obj-proxy": "3.0.0",
+    "immutable": "^3.8.2",
     "jest": "23.6.0",
     "jest-pnp-resolver": "1.0.1",
     "jest-resolve": "23.6.0",
@@ -45,9 +41,10 @@
     "react-bootstrap": "^0.32.4",
     "react-dev-utils": "^6.0.4",
     "react-dom": "^16.5.2",
-    "react-redux": "latest",
+    "react-redux": "^5.0.7",
     "redux": "^4.0.0",
     "redux-devtools": "^3.4.1",
+    "redux-immutable": "^4.0.0",
     "redux-thunk": "^2.3.0",
     "resolve": "1.8.1",
     "sass-loader": "7.1.0",
@@ -58,12 +55,14 @@
     "webpack-dev-server": "3.1.9",
     "webpack-manifest-plugin": "2.0.4",
     "whatwg-fetch": "^3.0.0",
-    "workbox-webpack-plugin": "3.6.2"
+    "workbox-webpack-plugin": "3.6.2",
+    "prop-types": "latest"
   },
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js",
+    "lint": "eslint src"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -108,11 +107,27 @@
       "web.jsx",
       "jsx",
       "node"
-    ]
+    ],
+    "setupTestFrameworkScriptFile": "<rootDir>/src/setupTests.js"
   },
   "babel": {
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.0.1",
+    "enzyme": "^3.7.0",
+    "enzyme-adapter-react-16": "^1.6.0",
+    "eslint": "^5.6.1",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-babel": "^5.2.1",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^21.24.1",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-react": "^7.11.1",
+    "jest-enzyme": "^6.1.2",
+    "react-test-renderer": "^16.5.2",
+    "webpack-api-mocker": "^1.5.15"
   }
 }
