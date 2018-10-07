@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1",
+    "sender": "u1",
+    "body": "Lorem ipsum",
+    "createdAt": "2018-10-01T00:00:00Z"
+  },
+  {
+    "id": "2",
+    "sender": "u1",
+    "body": "Sit amet consecteur",
+    "createdAt": "2018-10-01T00:10:00Z"
+  },
+  {
+    "id": "3",
+    "sender": "u1",
+    "body": "Vivamus adipisicing in placerat dictumst deserunt hymenaeos libero assumenda eius magnam iste lobortis aperiam convallis laboriosam reiciendis rem, faucibus sollicitudin tristique magnis eiusmod",
+    "createdAt": "2018-10-01T00:20:00Z"
+  },
+  {
+    "id": "4",
+    "sender": "u1",
+    "body": "Purus vel massa? ",
+    "createdAt": "2018-10-01T00:30:00Z"
+  }
+]

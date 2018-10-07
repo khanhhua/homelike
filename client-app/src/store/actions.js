@@ -10,6 +10,12 @@ import { ACTION_STATUS_ERROR, ACTION_STATUS_PENDING, ACTION_STATUS_SUCESS } from
 
 const action = (type, status, payload) => ({ type, status, payload });
 
+function getChannelAnchor(channel) {
+  return channel.messages
+    ? channel.messages[channel.messages.length - 1].id
+    : null;
+}
+
 export const loadChannels = () => async (dispatch) => {
   dispatch(action(ACTION_LOAD_CHANNELS, ACTION_STATUS_PENDING));
 
@@ -25,15 +31,17 @@ export const selectChannel = channel => async (dispatch) => {
   dispatch(action(ACTION_SELECT_CHANNEL, ACTION_STATUS_PENDING, channel));
 
   try {
-    const updatedChannel = await api.loadChannel(channel.id);
+    let anchor = getChannelAnchor(channel);
+    const updatedChannel = await api.loadChannel(channel.id, { anchor });
     dispatch(action(ACTION_SELECT_CHANNEL, ACTION_STATUS_SUCESS, updatedChannel));
 
-    getStreamer().subscribe(channel.id, (err, messages) => {
+    anchor = getChannelAnchor(updatedChannel);
+    getStreamer().subscribe(channel.id, { anchor }, (err, messages) => {
       if (err) {
         return;
       }
       dispatch(action(ACTION_RECEIVE_MESSAGES, ACTION_STATUS_SUCESS, {
-        channel,
+        ...channel,
         messages,
       }));
     });

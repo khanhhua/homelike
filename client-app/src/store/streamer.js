@@ -3,9 +3,9 @@ let instance;
 class Streamer {
   timer = null;
 
-  subscribe(channelId, callback) { // eslint-disable-line
+  subscribe(channelId, opts, callback) { // eslint-disable-line
     if (this.timer) {
-      clearInterval(this.timer);
+      clearTimeout(this.timer);
       this.timer = null;
     }
 

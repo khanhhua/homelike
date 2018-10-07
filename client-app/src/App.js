@@ -34,7 +34,6 @@ class App extends Component {
 }
 
 const mapStateToProps = (state = {}) => {
-  console.log('mapStateToProps...');
   const active = state.get('active');
 
   return {

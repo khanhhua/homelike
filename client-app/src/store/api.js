@@ -6,8 +6,8 @@ export async function loadChannels() {
   return body;
 }
 
-export async function loadChannel(id) {
-  const body = await fetch(`${baseURL}/channels/${id}`).then(res => res.json());
+export async function loadChannel(id, { anchor }) {
+  const body = await fetch(`${baseURL}/channels/${id}?anchor=${anchor || 0}`).then(res => res.json());
 
   return body;
 }

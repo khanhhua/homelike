@@ -6,13 +6,16 @@ const proxy = {
   _proxy: {
     proxy: {
       '/repos/*': 'https://api.github.com/',
-      '/:owner/:repo/raw/:ref/*': 'http://127.0.0.1:2018'
+      '/:owner/:repo/raw/:ref/*': 'http://127.0.0.1:2018',
     },
     changeHost: true,
   },
   // =====================
   'GET /api/channels': require('./channels.json'),
-  'GET /api/channels/1': require('./channel-1.json'),
+  'GET /api/channels/1': {
+    ...require('./channel-1.json'),
+    messages: require('./channel-1-messages'),
+  },
   'GET /api/channels/2': require('./channel-2.json'),
-}
+};
 module.exports = proxy;
