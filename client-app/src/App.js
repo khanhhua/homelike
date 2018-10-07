@@ -37,6 +37,7 @@ const mapStateToProps = (state = {}) => {
   const active = state.get('active');
 
   return {
+    auth: state.get('auth') ? state.get('auth').toJS() : null,
     users: state.get('users'),
     channels: state.get('channels').valueSeq().toJS(),
     active: {

@@ -1,4 +1,5 @@
 import {
+  ACTION_AUTHENTICATE,
   ACTION_LOAD_CHANNELS,
   ACTION_SELECT_CHANNEL,
   ACTION_RECEIVE_MESSAGES,
@@ -14,7 +15,21 @@ function getChannelAnchor(channel) {
     : null;
 }
 
-export function action(type, status, payload) { return ({ type, status, payload }); };
+export function action(type, status, payload) { return ({ type, status, payload }); }
+
+export const authenticate = (email, password) => async (dispatch) => {
+  dispatch(action(ACTION_AUTHENTICATE, ACTION_STATUS_PENDING));
+
+  try {
+    const result = await api.authenticate(email, password);
+    const { authToken } = result;
+
+    localStorage.setItem('authToken', authToken);
+    dispatch(action(ACTION_AUTHENTICATE, ACTION_STATUS_SUCESS, result));
+  } catch (e) {
+    dispatch(action(ACTION_AUTHENTICATE, ACTION_STATUS_ERROR, e));
+  }
+};
 
 export const loadChannels = () => async (dispatch) => {
   dispatch(action(ACTION_LOAD_CHANNELS, ACTION_STATUS_PENDING));

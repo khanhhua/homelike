@@ -11,6 +11,7 @@ const proxy = {
     changeHost: true,
   },
   // =====================
+  'POST /api/auth': require('./auth.json'),
   'GET /api/channels': require('./channels.json'),
   'GET /api/channels/1': {
     ...require('./channel-1.json'),

@@ -2,7 +2,7 @@
 
 import * as actions from '../actions';
 import createStore from '..';
-import { ACTION_LOAD_CHANNELS, ACTION_SELECT_CHANNEL } from '../action-types';
+import { ACTION_AUTHENTICATE, ACTION_LOAD_CHANNELS, ACTION_SELECT_CHANNEL } from '../action-types';
 import { ACTION_STATUS_PENDING, ACTION_STATUS_SUCESS } from '../action-statuses';
 import getStreamer from '../streamer';
 
@@ -21,6 +21,38 @@ describe('action', () => {
     });
   });
 })
+
+describe('authenticate', () => {
+  it('should give an auth token', (done) => {
+    const authToken = 'abc';
+    const userId = 'u1';
+    const username = 'User 1';
+
+    fetch.resetMocks();
+    fetch.mockResponseOnce(JSON.stringify({
+      authToken,
+      username,
+      id: userId,
+    }));
+
+    const store = createStore();
+    const fn = actions.authenticate('john.doe@mailinator.com', 'p@ssword');
+    const spy = jest.spyOn(store, 'dispatch');
+
+    fn(store.dispatch).then(() => {
+      expect(spy).toHaveBeenCalled();
+      expect(spy.mock.calls).toHaveLength(2);
+      expect(spy.mock.calls[0][0]).toEqual(actions.action(ACTION_AUTHENTICATE, ACTION_STATUS_PENDING, undefined));
+      expect(spy.mock.calls[1][0]).toEqual(actions.action(ACTION_AUTHENTICATE, ACTION_STATUS_SUCESS, {
+        authToken,
+        username,
+        id: userId,
+      }));
+
+      done();
+    });
+  });
+});
 
 describe('loadChannels', () => {
   it('should load channels', (done) => {

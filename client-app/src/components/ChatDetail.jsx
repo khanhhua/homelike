@@ -8,8 +8,7 @@ const ChatDetail = ({ channel, messages }) => (
     {!channel
     && (
       <React.Fragment>
-        <h2>Welcome to Slack-alike</h2>
-        <p>Where we developers come, talk and slack-alike</p>
+        <p>Choose a channel...</p>
       </React.Fragment>
     )}
     {!!channel
