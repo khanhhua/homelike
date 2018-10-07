@@ -8,13 +8,13 @@ import * as api from './api';
 import getStreamer from './streamer';
 import { ACTION_STATUS_ERROR, ACTION_STATUS_PENDING, ACTION_STATUS_SUCESS } from './action-statuses';
 
-const action = (type, status, payload) => ({ type, status, payload });
-
 function getChannelAnchor(channel) {
   return channel.messages
     ? channel.messages[channel.messages.length - 1].id
     : null;
 }
+
+export function action(type, status, payload) { return ({ type, status, payload }); };
 
 export const loadChannels = () => async (dispatch) => {
   dispatch(action(ACTION_LOAD_CHANNELS, ACTION_STATUS_PENDING));
