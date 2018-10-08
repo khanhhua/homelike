@@ -1,19 +1,28 @@
-import Koa from 'koa';
 import http from 'http';
-import socketIO from 'socket.io';
+
+import Koa from 'koa';
+import bodyParser from 'koa-bodyparser';
+
+import SSE from 'sse';
 import debug from 'debug';
 
+import internalHandlers from './internal-handlers';
+import { registerClient } from "./sse-client";
+
 const app = new Koa();
+app.use(bodyParser());
+internalHandlers(app);
+
 const server = http.createServer(app.callback()); // eslint-disable-line
-const io = socketIO(server, {
-  path: '/ws',
-  serveClient: true,
+const sse = new SSE(server, {
+  path: '/sse/*'
 });
 
 const dbg = debug('services');
 
-io.on('connection', () => {
+sse.on('connection', (clientSocket) => {
   dbg('Connection inbound');
+  registerClient(clientSocket);
 });
 server.listen(3838, () => {
   dbg('TODO: Join FabioLB');
