@@ -6,10 +6,15 @@ import debug from 'debug';
 const dbg = debug('services:sse-client');
 const sockets = {};
 const users = {};
+const channels = {};
 
-const packet = (type, data) => {
-  return `event: ${type}\ndata: ${data}\n\n`;
-};
+const personalRoute = new Route('/sse/users/:userId');
+const channelRoute = new Route('/sse/channels/:channelId');
+
+const packet = (type, data) => ({
+  event: type,
+  data,
+});
 
 /**
  *
@@ -17,41 +22,75 @@ const packet = (type, data) => {
  * @return {{uuid: string, socket, userId}[]}
  */
 export const query = (params = {}) => {
-  const { userId = null } = params;
-  if (!userId) {
-    return Object.entries(sockets).map(([uuid, {socket, userId}]) => ({ uuid, socket, userId }));
-  } else {
+  const { userId = null, channelId = null } = params;
+  if (userId) {
     return users[userId].map(({ socket, uuid }) => ({ uuid, socket, userId }));
   }
+
+  if (channelId) {
+    return channels[channelId].map(({ socket, uuid }) => ({ uuid, socket, channelId }));
+  }
+
+  return Object.entries(sockets).map(([uuid, { socket, userId, channelId }]) => // eslint-disable-line
+    ({ uuid, socket, userId, channelId })); // eslint-disable-line
 };
 
-export const registerClient = (socket) => {
+export const registerClient = (socket, _query) => {
   const uuid = uuidV4();
-  dbg(`Registering socket with process as #${uuid}`);
-
   const url = URL.parse(socket.req.url);
-  const route = new Route('/sse/:userId');
-  const { userId } = route.match(url.pathname);
+
+  const { userId } = personalRoute.match(url.pathname) || {};
+  const { channelId } = channelRoute.match(url.pathname) || {};
+
+  if (!(userId || channelId)) {
+    dbg('Invalid socket connection');
+    socket.close();
+    return;
+  }
 
   sockets[uuid] = {
     socket,
     userId,
+    channelId,
   };
 
-  if (userId in users) {
-    users[userId].push({ socket, uuid });
-  } else {
-    users[userId] = [{ socket, uuid }];
+  if (userId) {
+    if (userId in users) {
+      users[userId].push({ socket, uuid });
+    } else {
+      users[userId] = [{ socket, uuid }];
+    }
+
+    dbg(`Registered socket with process as user #${userId} => #${uuid}`);
   }
 
+  if (channelId) {
+    if (channelId in channels) {
+      channels[channelId].push({ socket, uuid });
+    } else {
+      channels[channelId] = [{ socket, uuid }];
+    }
+
+    dbg(`Registered socket with process as channel #${channelId} => #${uuid}`);
+  }
 
   socket.on('close', () => {
     dbg('Disconnecting...');
-    const { userId } = sockets[uuid];
-    const index = users[userId].findIndex(({ uuid: key }) => key === uuid)
 
-    if (index !== -1) {
-      users[userId].splice(index, 1);
+    if (userId) {
+      const index = users[userId].findIndex(({ uuid: key }) => key === userId);
+
+      if (index !== -1) {
+        users[userId].splice(index, 1);
+      }
+    }
+
+    if (channelId) {
+      const index = channels[channelId].findIndex(({ uuid: key }) => key === userId);
+
+      if (index !== -1) {
+        channels[channelId].splice(index, 1);
+      }
     }
 
     delete sockets[uuid];
@@ -59,11 +98,27 @@ export const registerClient = (socket) => {
   socket.send(packet('pong', uuid.toString()));
 };
 
-export const sendTo = (userId, message) => {
-  const sockets = (users[userId] || []).map(({socket}) => socket);
+export const sendTo = ({ userId, channelId }, message) => {
+  let clientSockets;
 
+  if (userId) {
+    dbg(`Broadcasting to user #${userId}`);
+    clientSockets = (users[userId] || []).map(({ socket }) => socket);
+  } else if (channelId) {
+    dbg(`Broadcasting to channel #${channelId}`);
+    clientSockets = (channels[channelId] || []).map(({ socket }) => socket);
+  } else {
+    return;
+  }
 
-  sockets.forEach((socket) => {
-    socket.send(packet('chat', message));
+  let serializedMessage;
+  if (typeof message === 'string') {
+    serializedMessage = message;
+  } else {
+    serializedMessage = JSON.stringify(message);
+  }
+
+  clientSockets.forEach((socket) => {
+    socket.send(packet('chat', serializedMessage));
   });
 };

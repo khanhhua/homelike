@@ -1,12 +1,12 @@
 import debug from 'debug';
 import Router from 'koa-router';
-import { query, sendTo } from "./sse-client";
+import { query, sendTo } from './sse-client';
 
 const dbg = debug('services:internal-handlers');
 
-export default function(app) {
+export default function (app) {
   const router = new Router({
-    prefix: '/api'
+    prefix: '/api',
   });
 
   router.get('/clients', (ctx) => {
@@ -18,15 +18,15 @@ export default function(app) {
     };
   });
 
-  router.post('/chats/:userId', (ctx) => {
-    const { userId } = ctx.params;
-    const body = ctx.request.body;
-    const message = (typeof body === 'string') ? body: JSON.stringify(body);
+  router.post('/chats', (ctx) => {
+    const { body } = ctx.request;
+    const { userId, channelId, message } = body;
+    dbg('message:', message);
 
-    sendTo(userId, message);
+    sendTo({ userId, channelId }, message);
 
     ctx.body = {
-      ok: true
+      ok: true,
     };
   });
 

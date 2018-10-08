@@ -22,7 +22,7 @@ async function list(ctx) {
 
 async function view(ctx) {
   const { channelId } = ctx.params;
-  const { anchor = 0 } = ctx.query;
+  const { anchor = '0' } = ctx.query;
 
   try {
     dbg(`Viewing one channel #${channelId}`);
@@ -31,9 +31,8 @@ async function view(ctx) {
 
     const anchorISO = new Date(parseInt(anchor, 10)).toISOString();
     dbg(`Filtering messages by ${anchorISO}`);
-    const messages = (chunk.messages || []).filter(({ createdAt }) => {
-      return createdAt.toISOString() > anchorISO;
-    });
+    const messages = ((chunk ? chunk.messages : []) || [])
+      .filter(({ createdAt }) => createdAt.toISOString() > anchorISO);
 
     ctx.body = {
       ok: true,

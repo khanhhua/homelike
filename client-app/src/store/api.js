@@ -1,4 +1,4 @@
-const baseURL = 'http://localhost:3000/api';
+const baseURL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000/api/v1';
 
 function createHeaders() {
   const authToken = localStorage.getItem('authToken');
@@ -31,6 +31,10 @@ export async function loadChannels() {
     headers: createHeaders(),
   }).then(res => res.json());
 
+  if (body.ok) {
+    return body.channels;
+  }
+
   return body;
 }
 
@@ -38,6 +42,10 @@ export async function loadChannel(id, { anchor }) {
   const body = await fetch(`${baseURL}/channels/${id}?anchor=${anchor || 0}`, {
     headers: createHeaders(),
   }).then(res => res.json());
+
+  if (body.ok) {
+    return body.channel;
+  }
 
   return body;
 }

@@ -20,9 +20,9 @@ const sse = new SSE(server, {
 
 const dbg = debug('services');
 
-sse.on('connection', (clientSocket) => {
+sse.on('connection', (clientSocket, query) => {
   dbg('Connection inbound');
-  registerClient(clientSocket);
+  registerClient(clientSocket, query);
 });
 server.listen(3838, () => {
   dbg('TODO: Join FabioLB');

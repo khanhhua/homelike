@@ -60,6 +60,8 @@
   },
   "scripts": {
     "start": "node scripts/start.js",
+    "start:dev": "REACT_APP_API_BASE_URL=http://localhost:3000/api/v1 REACT_APP_SSE_BASE_URL=http://localhost:3000/sse node scripts/start.js",
+    "start:mock": "REACT_APP_MOCK=true node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js --coverage",
     "lint": "eslint src"

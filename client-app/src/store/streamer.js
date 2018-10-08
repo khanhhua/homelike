@@ -1,27 +1,34 @@
+const baseURL = process.env.REACT_APP_SSE_BASE_URL || 'http://localhost:3000/sse';
+
 let instance;
 
 class Streamer {
-  timer = null;
+  eventSource = null;
 
   subscribe(channelId, opts, callback) { // eslint-disable-line
-    if (this.timer) {
-      clearTimeout(this.timer);
-      this.timer = null;
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
     }
 
-    this.timer = setTimeout(() => {
-      callback(null, [
-        {
-          id: `${Date.now()}`,
-          sender: 'u2',
-          body: 'Lorem ipsum',
-        },
-        {
-          id: `${Date.now() + 1}`,
-          sender: 'u1',
-          body: 'Sit amet consecteur',
-        }]);
-    }, 2000);
+    const es = new EventSource(`${baseURL}/channels/${channelId}`);
+
+    es.onopen = () => {
+      console.log('Opened');
+    };
+
+    es.addEventListener('message', (e) => {
+      const { data } = e;
+      console.log(e);
+
+      if (Array.isArray(data)) {
+        callback(null, data);
+      } else {
+        callback(null, [data]);
+      }
+    });
+
+    this.eventSource = es;
   }
 }
 
