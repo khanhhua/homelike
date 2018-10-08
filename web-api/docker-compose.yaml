@@ -1,0 +1,25 @@
+version: '3.6'
+services:
+  mongodb:
+    image: mongo:3.2.21-jessie
+    hostname: mongo
+    container_name: web-api-database
+    ports:
+      - 27017:27017
+    volumes:
+      - ./data/db:/data/db
+
+  web-api:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    restart: always
+
+    ports:
+      - 8080:8080
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+    env_file:
+      - .env.docker

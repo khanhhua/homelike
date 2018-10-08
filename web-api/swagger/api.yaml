@@ -1,0 +1,317 @@
+swagger: '2.0'
+info:
+  description: Documentation for interacting with web-api via RestFUL/HTTP
+  version: 1.0.0
+  title: web-api
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: giakhanh2487@gmail.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+host: 'localhost:8080'
+basePath: /api/v1
+tags:
+  - name: authentication
+    description: Authentication
+  - name: channel
+    description: Channel or topic of the chat
+  - name: message
+    description: Individual message
+schemes:
+  - http
+paths:
+  '/auth':
+    post:
+      tags:
+        - authentication
+      summary: API for authentication
+
+      parameters:
+        - in: body
+          name: body
+          description: |
+            **Sample value**
+            ```
+            {
+              "email": "user1@mailinator.com",
+              "password": "encpass"
+            }
+            ```
+          schema:
+            type: object
+            required:
+              - email
+              - password
+            properties:
+              email:
+                type: string
+                format: email
+              password:
+                type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/AuthResponse'
+        '400':
+          description: bad request
+          schema:
+            $ref: '#/definitions/ApiResponse'
+
+  '/channels':
+    get:
+      tags:
+        - channel
+      summary: Gets all channels within the system
+
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ChannelListResponse'
+        '400':
+          description: bad request
+          schema:
+            $ref: '#/definitions/ApiResponse'
+  '/channels/{channelId}':
+    get:
+      tags:
+        - channel
+      summary: Gets all channels within the system
+      parameters:
+        - in: path
+          name: channelId
+          schema:
+            type: string
+          description: Channel ID
+        - in: query
+          name: anchor
+          schema:
+            type: integer
+          description: Timestamp notation to filter messages by createdAt
+
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ChannelResponse'
+        '400':
+          description: bad request
+          schema:
+            $ref: '#/definitions/ApiResponse'
+
+  '/channels/{channelId}/messages':
+    get:
+      tags:
+        - message
+      summary: Get all messages to the channel
+      parameters:
+        - in: path
+          name: channelId
+          schema:
+            type: string
+          description: Channel ID
+        - in: query
+          name: anchor
+          schema:
+            type: integer
+          description: Timestamp notation to filter messages by createdAt
+
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/MessageListResponse'
+        '400':
+          description: bad request
+          schema:
+            $ref: '#/definitions/ApiResponse'
+    post:
+      tags:
+        - message
+      summary: Post new message to the channel
+      parameters:
+        - in: path
+          name: channelId
+          schema:
+            type: string
+          description: Channel ID
+        - in: body
+          name: message
+          schema:
+            type: object
+            properties:
+              text:
+                type: string
+          description: The message to send
+
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/MessageResponse'
+        '400':
+          description: bad request
+          schema:
+            $ref: '#/definitions/ApiResponse'
+
+  '/messages/{channelId}/{messageId}':
+    put:
+      tags:
+        - message
+      summary: Update the message new content
+      parameters:
+        - in: path
+          name: channelId
+          schema:
+            type: string
+          description: Channel ID which owns the message
+          required: true
+        - in: path
+          name: messageId
+          schema:
+            type: string
+          description: Message ID
+          required: true
+        - in: body
+          name: message
+          schema:
+            type: string
+          description: The new message content
+          required: true
+
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '400':
+          description: bad request
+          schema:
+            $ref: '#/definitions/ApiResponse'
+
+definitions:
+  Message:
+    type: object
+    required:
+      - id
+      - sender
+      - body
+    properties:
+      id:
+        type: string
+      sender:
+        type: string
+      body:
+        type: string
+      createdAt:
+        type: string
+
+  Channel:
+    type: object
+    required:
+      - id
+      - name
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      chatters:
+        type: array
+        items:
+          type: string
+      createdAt:
+        type: string
+      lastMsgAt:
+        type: string
+      messages:
+        type: array
+        items:
+          $ref: '#/definitions/Message'
+
+  ApiResponse:
+    type: object
+    required:
+      - ok
+    properties:
+      ok:
+        type: boolean
+      code:
+        type: integer
+        format: int64
+      type:
+        type: string
+      message:
+        type: string
+      errors:
+        type: array
+        items:
+          type: string
+
+  AuthResponse:
+    type: object
+    required:
+    - ok
+    properties:
+      ok:
+        type: boolean
+      authToken:
+        type: string
+      username:
+        type: string
+      id:
+        type: string
+
+  MessageResponse:
+    type: object
+    required:
+      - ok
+      - message
+    properties:
+      ok:
+        type: boolean
+      channel:
+        $ref: '#/definitions/Message'
+
+  ChannelResponse:
+    type: object
+    required:
+      - ok
+      - channel
+    properties:
+      ok:
+        type: boolean
+      channel:
+        $ref: '#/definitions/Channel'
+
+  MessageListResponse:
+    type: object
+    required:
+      - ok
+      - messages
+    properties:
+      ok:
+        type: boolean
+      messages:
+        type: array
+        items:
+          $ref: '#/definitions/Message'
+
+  ChannelListResponse:
+    type: object
+    required:
+      - ok
+      - channels
+    properties:
+      ok:
+        type: boolean
+      channels:
+        type: array
+        items:
+          $ref: '#/definitions/Channel'
+
+externalDocs:
+  description: Find out more about Swagger
+  url: 'http://swagger.io'
