@@ -1,6 +1,9 @@
 {
   "name": "services",
   "version": "0.1.0",
+  "description": "Chat services",
+  "license": "MIT",
+  "repository": "git@github.com:khanhhua/homelike.git",
   "scripts": {
     "start": "BABEL_DISABLE_CACHE=1 DEBUG=services* babel-node src/index.js",
     "debug": "BABEL_DISABLE_CACHE=1 DEBUG=services* babel-node --inspect=9229 src/index.js"

@@ -7,7 +7,7 @@ import SSE from 'sse';
 import debug from 'debug';
 
 import internalHandlers from './internal-handlers';
-import { registerClient } from "./sse-client";
+import { registerClient } from './sse-client';
 
 const app = new Koa();
 app.use(bodyParser());
@@ -15,7 +15,7 @@ internalHandlers(app);
 
 const server = http.createServer(app.callback()); // eslint-disable-line
 const sse = new SSE(server, {
-  path: '/sse/*'
+  path: '/sse/*',
 });
 
 const dbg = debug('services');
