@@ -10,7 +10,7 @@ import getStreamer from './streamer';
 import { ACTION_STATUS_ERROR, ACTION_STATUS_PENDING, ACTION_STATUS_SUCESS } from './action-statuses';
 
 function getChannelAnchor(channel) {
-  return channel.messages
+  return channel.messages && channel.messages.length
     ? channel.messages[channel.messages.length - 1].id
     : null;
 }

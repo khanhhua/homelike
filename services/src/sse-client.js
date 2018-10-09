@@ -11,10 +11,16 @@ const channels = {};
 const personalRoute = new Route('/sse/users/:userId');
 const channelRoute = new Route('/sse/channels/:channelId');
 
-const packet = (type, data) => ({
-  event: type,
-  data,
-});
+const packet = (data) => {
+  let serialized;
+  if (typeof message === 'string') {
+    serialized = data;
+  } else {
+    serialized = JSON.stringify(data);
+  }
+
+  return serialized;
+}
 
 /**
  *
@@ -95,7 +101,7 @@ export const registerClient = (socket, _query) => {
 
     delete sockets[uuid];
   });
-  socket.send(packet('pong', uuid.toString()));
+  socket.send('pong', packet(uuid.toString()));
 };
 
 export const sendTo = ({ userId, channelId }, message) => {
@@ -111,14 +117,8 @@ export const sendTo = ({ userId, channelId }, message) => {
     return;
   }
 
-  let serializedMessage;
-  if (typeof message === 'string') {
-    serializedMessage = message;
-  } else {
-    serializedMessage = JSON.stringify(message);
-  }
-
+  let data = packet(message);
   clientSockets.forEach((socket) => {
-    socket.send(packet('chat', serializedMessage));
+    socket.send('chat', data);
   });
 };

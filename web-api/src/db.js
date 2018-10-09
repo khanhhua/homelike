@@ -69,14 +69,16 @@ export async function initDb() {
   };
   await mongoose.connect(DATABASE_URL, options);
 
-  dbg('Executing query scripts...');
-  // try {
-  //   await Channel.create({ name: 'general' });
-  //   await Channel.create({ name: 'chatbot' });
-  // } catch (e) {
-  //   console.log(e.stackTrace);
-  // }
-
+  if (false) {
+    dbg('Executing query scripts...');
+    try {
+        await User.create({ username: 'user1', email: 'user1@mailinator.com', channels: [] });
+        await Channel.create({ name: 'general' });
+        await Channel.create({ name: 'chatbot' });
+    } catch (e) {
+      console.log(e.stackTrace);
+    }
+  }
   dbg('Done');
 }
 

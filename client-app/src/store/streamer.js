@@ -5,21 +5,27 @@ let instance;
 class Streamer {
   eventSource = null;
 
-  subscribe(channelId, opts, callback) { // eslint-disable-line
+  subscribe(channelId, opts, callback) {
     if (this.eventSource) {
       this.eventSource.close();
       this.eventSource = null;
     }
+    console.log(`Subscribing to channel ${channelId}`); // eslint-disable-line
 
     const es = new EventSource(`${baseURL}/channels/${channelId}`);
 
     es.onopen = () => {
-      console.log('Opened');
+      console.debug('Opened');
     };
 
-    es.addEventListener('message', (e) => {
-      const { data } = e;
-      console.log(e);
+    es.addEventListener('pong', (e) => {
+      console.info(`Connection UUID: ${e.data}`);
+    });
+
+    es.addEventListener('chat', (e) => {
+      const { data: raw } = e;
+      const data = JSON.parse(raw);
+      console.debug('Streamer:on(chat)', data);
 
       if (Array.isArray(data)) {
         callback(null, data);
