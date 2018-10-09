@@ -2,30 +2,36 @@ import React, { Component } from 'react';
 import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
+import cx from 'classnames';
+import styles from './talk-box.module.scss';
+
 export default class TalkBox extends Component {
   static propTypes = {
     onSend: PropTypes.func.isRequired,
   };
 
+  state = {
+    text: '',
+  };
+
   render() {
     const { onSend } = this.props;
+    const { text } = this.state;
 
     return (
-      <div className="talk-box form-inline">
-        <div className="form-group">
+      <div className={cx(styles['talk-box'], 'form-inline')}>
+        <div className={cx(styles['form-group'], 'form-group')}>
           <textarea
-            ref={(node) => {
-              this.textarea = node;
-            }}
-            className="form-control"
+            value={text}
+            onChange={({ target: { value } }) => this.setState({ text: value })}
+            className={cx(styles['form-control'], 'form-control')}
             rows={4}
           />
         </div>
         <Button
           className="btn-primary"
           onClick={() => {
-            console.log(onSend);
-            onSend(this.textarea.value);
+            onSend(text).then(() => this.setState({ text: '' }));
           }}
         >
           Send
