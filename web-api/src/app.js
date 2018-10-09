@@ -5,9 +5,13 @@ import bodyParser from 'koa-bodyparser';
 import * as swagger from 'swagger2';
 import { validate } from 'swagger2-koa';
 
+import jwt from 'koa-jwt';
+
 import auth from './auth';
 import channels from './channels';
 import messages from './messages';
+
+const JWT_SECRET = process.env.JWT_SECRET || 's@cret';
 
 export default function makeApp() {
   const dbg = debug('web-api:app');
@@ -15,6 +19,7 @@ export default function makeApp() {
   const app = new Koa();
   const document = swagger.loadDocumentSync('./swagger/api.yaml');
 
+  app.use(jwt({ secret: JWT_SECRET }).unless({ path: [/^\/api\/v1\/auth/] }));
   app.use(bodyParser());
   app.use(async (ctx, next) => {
     try {
