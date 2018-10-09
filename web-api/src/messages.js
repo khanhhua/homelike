@@ -85,10 +85,13 @@ async function create(ctx) {
     dbg(`Broadcast message to channel #${channelId}`);
     await rp('http://localhost:3838/api/chats', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         channelId,
-        message: format(message)
-      })
+        message: format(message),
+      }),
     });
 
     ctx.body = {

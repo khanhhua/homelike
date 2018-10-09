@@ -70,7 +70,8 @@ export const sendMessage = (channelId, message) => async (dispatch) => {
   dispatch(action(ACTION_SEND_TO_CHANNEL, ACTION_STATUS_PENDING, { channelId, message }));
 
   try {
-    await api.sendMessage(channelId, message);
+    const updatedMesssage = await api.sendMessage(channelId, message);
+    dispatch(action(ACTION_SEND_TO_CHANNEL, ACTION_STATUS_SUCESS, updatedMesssage));
   } catch (e) {
     dispatch(action(ACTION_SEND_TO_CHANNEL, ACTION_STATUS_ERROR, e));
   }

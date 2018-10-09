@@ -2,13 +2,17 @@ import mongoose from 'mongoose';
 
 export function format(model) {
   const ret = {};
-  const keys = Object.keys(model);
+  const keys = Object.getOwnPropertyNames(model);
 
   keys.forEach((key) => {
+    if (typeof model[key] === 'undefined') {
+      return;
+    }
+
     if (key === '_id') {
       ret.id = model._id.toString(); // eslint-disable-line
     } else if (key !== '__v') {
-      if (model[key].constructor.name === 'Date') {
+      if (model[key].constructor && model[key].constructor.name === 'Date') {
         ret[key] = model[key].toISOString();
       } else if (model[key].constructor === mongoose.Types.ObjectId) {
         ret[key] = model[key].toString();

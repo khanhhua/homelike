@@ -54,10 +54,11 @@ export async function loadChannel(id, { anchor }) {
 
 export async function sendMessage(channelId, message) {
   const body = await fetch(`${baseURL}/channels/${channelId}/messages`, {
+    method: 'POST',
     headers: createHeaders(),
     cache: 'no-cache',
     body: JSON.stringify({
-      text: message.body,
+      text: message,
     }),
   }).then(res => res.json());
 
