@@ -29,6 +29,7 @@ export async function authenticate(email, password) {
 export async function loadChannels() {
   const body = await fetch(`${baseURL}/channels`, {
     headers: createHeaders(),
+    cache: 'no-cache',
   }).then(res => res.json());
 
   if (body.ok) {
@@ -41,10 +42,27 @@ export async function loadChannels() {
 export async function loadChannel(id, { anchor }) {
   const body = await fetch(`${baseURL}/channels/${id}?anchor=${anchor || 0}`, {
     headers: createHeaders(),
+    cache: 'no-cache',
   }).then(res => res.json());
 
   if (body.ok) {
     return body.channel;
+  }
+
+  return body;
+}
+
+export async function sendMessage(channelId, message) {
+  const body = await fetch(`${baseURL}/channels/${channelId}/messages`, {
+    headers: createHeaders(),
+    cache: 'no-cache',
+    body: JSON.stringify({
+      text: message.body,
+    }),
+  }).then(res => res.json());
+
+  if (body.ok) {
+    return body.message;
   }
 
   return body;

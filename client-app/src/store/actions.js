@@ -3,6 +3,7 @@ import {
   ACTION_LOAD_CHANNELS,
   ACTION_SELECT_CHANNEL,
   ACTION_RECEIVE_MESSAGES,
+  ACTION_SEND_TO_CHANNEL,
 } from './action-types';
 
 import * as api from './api';
@@ -62,5 +63,15 @@ export const selectChannel = channel => async (dispatch) => {
     });
   } catch (e) {
     dispatch(action(ACTION_SELECT_CHANNEL, ACTION_STATUS_ERROR, e));
+  }
+};
+
+export const sendMessage = (channelId, message) => async (dispatch) => {
+  dispatch(action(ACTION_SEND_TO_CHANNEL, ACTION_STATUS_PENDING, { channelId, message }));
+
+  try {
+    await api.sendMessage(channelId, message);
+  } catch (e) {
+    dispatch(action(ACTION_SEND_TO_CHANNEL, ACTION_STATUS_ERROR, e));
   }
 };

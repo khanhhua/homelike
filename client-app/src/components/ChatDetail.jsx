@@ -1,7 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
+import AppContext from '../AppContext';
 import MessageList from './MessageList';
 import TalkBox from './TalkBox';
+
+import * as actions from '../store/actions';
 
 const ChatDetail = ({ channel, messages }) => (
   <div className="chat-detail">
@@ -23,7 +27,9 @@ const ChatDetail = ({ channel, messages }) => (
           <span>32 members</span>
         </div>
         <MessageList messages={messages} />
-        <TalkBox />
+        <AppContext.Consumer>
+          {({ dispatch }) => <TalkBox onSend={text => dispatch(actions.sendMessage(channel.id, text))} />}
+        </AppContext.Consumer>
       </React.Fragment>
     )}
   </div>

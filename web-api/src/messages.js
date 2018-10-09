@@ -1,5 +1,7 @@
-import Router from 'koa-router';
 import debug from 'debug';
+
+import Router from 'koa-router';
+import { default as rp } from 'request-promise';
 // import _get from 'lodash.get';
 import * as db from './db';
 import { format } from './utils';
@@ -52,7 +54,6 @@ async function create(ctx) {
   const { channelId } = ctx.params;
 
   try {
-    dbg(`Pushing new message to channel #${channelId}`);
     const { text } = ctx.request.body;
 
     const message = {
@@ -61,6 +62,7 @@ async function create(ctx) {
       body: text,
       createdAt: new Date(),
     };
+    dbg(`Persisting new message for channel #${channelId}`);
     await new Promise((resolve, reject) => {
       dbg('Find and update...');
 
@@ -78,6 +80,15 @@ async function create(ctx) {
 
         return reject(new Error('Consistency error'));
       });
+    });
+
+    dbg(`Broadcast message to channel #${channelId}`);
+    await rp('http://localhost:3838/api/chats', {
+      method: 'POST',
+      body: JSON.stringify({
+        channelId,
+        message: format(message)
+      })
     });
 
     ctx.body = {
