@@ -22,9 +22,7 @@ async function list(ctx) {
       ctx.throw(404, 'Channel not found');
     }
 
-    const messages = (chunk.messages || []).filter(({ createdAt }) => {
-      return createdAt.toISOString() > anchorISO;
-    });
+    const messages = (chunk.messages || []).filter(({ createdAt }) => createdAt.toISOString() > anchorISO);
 
     ctx.body = {
       ok: true,
@@ -55,10 +53,16 @@ async function create(ctx) {
 
   try {
     const { text } = ctx.request.body;
+    const { user } = ctx.state;
+
+    if (!user) {
+      ctx.throw(403, 'Unauthorized');
+    }
+    dbg('Sending message as:', user);
 
     const message = {
       _id: db.objectId(),
-      sender: '5bb9dead16b4862b77a1b2db',
+      sender: user.sub,
       body: text,
       createdAt: new Date(),
     };
