@@ -10,17 +10,18 @@
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
     "babel-plugin-inline-dotenv": "^1.1.2",
     "babel-plugin-istanbul": "^4.1.6",
     "babel-plugin-rewire": "^1.1.0",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
-    "supertest": "^3.1.0",
     "chai": "^4.1.2",
     "chai-spies": "^1.0.0",
     "mocha": "^5.2.0",
-    "nyc": "^12.0.2"
+    "nyc": "^12.0.2",
+    "supertest": "^3.1.0"
   },
   "dependencies": {
     "debug": "^3.1.0",
