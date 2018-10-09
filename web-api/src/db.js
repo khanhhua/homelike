@@ -18,6 +18,7 @@ const UserSchema = new Schema(
   {
     email: String,
     username: String,
+    password: String,
     channels: [String],
   }, schemaOptions);
 UserSchema.virtual('id').get(function () {

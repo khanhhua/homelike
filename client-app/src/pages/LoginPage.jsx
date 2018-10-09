@@ -8,7 +8,18 @@ import * as actions from '../store/actions';
 import styles from './login-page.module.scss';
 
 export default class Login extends Component {
+  state = {
+    registering: 0,
+    email: '',
+    password: '',
+    repassword: '',
+  };
+
   render() {
+    const {
+      registering, email, password, repassword,
+    } = this.state;
+
     return (
       <div className={styles['login-page']}>
         <Grid>
@@ -23,19 +34,77 @@ export default class Login extends Component {
                   <FormControl
                     type="email"
                     placeholder="Enter your email"
-                    inputRef={(node) => { this.email = node; }}
+                    value={email}
+                    onChange={({ target: { value } }) => this.setState({ email: value })}
                   />
                 </FormGroup>
-                <AppContext.Consumer>
-                  {({ dispatch }) => (
-                    <Button
-                      className="btn-primary"
-                      onClick={() => dispatch(actions.authenticate(this.email.value))}
-                    >
-                      Login
-                    </Button>
-                  )}
-                </AppContext.Consumer>
+                <FormGroup>
+                  <ControlLabel>Password</ControlLabel>
+                  <FormControl
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={({ target: { value } }) => this.setState({ password: value })}
+                  />
+                </FormGroup>
+                { registering === 1
+                && (
+                <FormGroup
+                  validationState={(!!repassword && repassword !== password) ? 'error' : null}
+                >
+                  <ControlLabel>Confirm your password</ControlLabel>
+                  <FormControl
+                    type="password"
+                    placeholder="Enter your password again"
+                    value={repassword}
+                    onChange={({ target: { value } }) => this.setState({ repassword: value })}
+                  />
+                  <FormControl.Feedback />
+                </FormGroup>
+                )}
+                {registering === 0
+                && (
+                  <AppContext.Consumer>
+                    {({ dispatch }) => (
+                      <>
+                        <Button
+                          className="btn-light m-1"
+                          onClick={() => this.setState({ registering: 1 })}
+                        >
+                          Register
+                        </Button>
+                        <Button
+                          className="btn-primary m-1"
+                          onClick={() => dispatch(actions.authenticate(email, password))}
+                        >
+                          Login
+                        </Button>
+                      </>
+                    )}
+                  </AppContext.Consumer>
+                )}
+                {registering === 1
+                && (
+                  <AppContext.Consumer>
+                    {({ dispatch }) => (
+                      <>
+                        <Button
+                          className="btn-primary m-1"
+                          onClick={() => dispatch(actions.register(email, password))}
+                          disabled={repassword !== password}
+                        >
+                          Register
+                        </Button>
+                        <Button
+                          className="btn-light m-1"
+                          onClick={() => this.setState({ registering: 0, repassword: '' })}
+                        >
+                          Cancel
+                        </Button>
+                      </>
+                    )}
+                  </AppContext.Consumer>
+                )}
               </div>
             </Col>
           </Row>

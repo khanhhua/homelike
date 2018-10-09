@@ -1,4 +1,5 @@
 import {
+  ACTION_REGISTER,
   ACTION_AUTHENTICATE,
   ACTION_LOAD_CHANNELS,
   ACTION_SELECT_CHANNEL,
@@ -17,6 +18,21 @@ function getChannelAnchor(channel) {
 }
 
 export function action(type, status, payload) { return ({ type, status, payload }); }
+
+export const register = (email, password) => async (dispatch) => {
+  dispatch(action(ACTION_REGISTER, ACTION_STATUS_PENDING));
+
+  try {
+    const result = await api.register(email, password);
+    if (result === true) {
+      window.location.reload();
+    } else {
+      dispatch(action(ACTION_REGISTER, ACTION_STATUS_ERROR, result.errors));
+    }
+  } catch (e) {
+    dispatch(action(ACTION_REGISTER, ACTION_STATUS_ERROR, e));
+  }
+};
 
 export const authenticate = (email, password) => async (dispatch) => {
   dispatch(action(ACTION_AUTHENTICATE, ACTION_STATUS_PENDING));

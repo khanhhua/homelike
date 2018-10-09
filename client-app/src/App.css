@@ -5,3 +5,11 @@
 
   background-color: bisque;
 }
+
+.form-group.has-feedback.has-error {
+  color: #a94442;
+}
+
+.form-group.has-feedback.has-error .form-control {
+  border-color: #ebcccc;
+}

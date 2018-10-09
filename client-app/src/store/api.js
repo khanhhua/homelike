@@ -15,8 +15,23 @@ function createHeaders() {
   };
 }
 
+export async function register(email, password) {
+  const body = await fetch(`${baseURL}/auth/register`, {
+    method: 'POST',
+    cache: 'no-cache',
+    headers: createHeaders(),
+    body: JSON.stringify({ email, password }),
+  }).then(res => res.json());
+
+  if (body.ok) {
+    return true;
+  }
+
+  return body;
+}
+
 export async function authenticate(email, password) {
-  const body = await fetch(`${baseURL}/auth`, {
+  const body = await fetch(`${baseURL}/auth/login`, {
     method: 'POST',
     cache: 'no-cache',
     headers: createHeaders(),

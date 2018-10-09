@@ -15,7 +15,8 @@ if (process.env.REACT_APP_MOCK) {
   proxy = {
     ...proxy,
     ...{
-      'POST /api/v1/auth': require('./auth.json'),
+      'POST /api/v1/auth/register': { ok: true},
+      'POST /api/v1/auth/login': require('./auth.json'),
       'GET /api/v1/channels': require('./channels.json'),
       'GET /api/v1/channels/1': {
         ...require('./channel-1.json'),

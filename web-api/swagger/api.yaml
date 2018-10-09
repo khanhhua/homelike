@@ -21,7 +21,44 @@ tags:
 schemes:
   - http
 paths:
-  '/auth':
+  '/auth/register':
+    post:
+      tags:
+        - authentication
+      summary: API for registration
+
+      parameters:
+        - in: body
+          name: body
+          description: |
+            **Sample value**
+            ```
+            {
+              "email": "user1@mailinator.com",
+              "password": "encpass"
+            }
+            ```
+          schema:
+            type: object
+            required:
+              - email
+              - password
+            properties:
+              email:
+                type: string
+                format: email
+              password:
+                type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '400':
+          description: bad request
+          schema:
+            $ref: '#/definitions/ApiResponse'
+  '/auth/login':
     post:
       tags:
         - authentication
