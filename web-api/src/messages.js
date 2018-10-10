@@ -1,12 +1,14 @@
 import debug from 'debug';
+import Consul from 'consul';
 
 import Router from 'koa-router';
 import { default as rp } from 'request-promise';
-// import _get from 'lodash.get';
 import * as db from './db';
 import { format } from './utils';
 
 const dbg = debug('web-api:messages');
+
+let consul;
 
 async function list(ctx) {
   const { channelId } = ctx.params;
@@ -86,17 +88,28 @@ async function create(ctx) {
       });
     });
 
-    dbg(`Broadcast message to channel #${channelId}`);
-    await rp('http://localhost:3838/api/chats', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        channelId,
-        message: format(message),
-      }),
-    });
+    try {
+      const { CONSUL_URL } = process.env;
+      const result = await rp(`${CONSUL_URL}/v1/health/service/sse-connector`).then(res => JSON.parse(res));
+      const urls = result.map(({ Service: { Address, Port } }) => `http://${Address}:${Port}`);
+      dbg(`Broadcast message to channel #${channelId} at host:ports`, urls);
+
+      await Promise.all(urls.map(url =>
+        rp(`${url}/api/chats`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            channelId,
+            message: format(message),
+          }),
+        })
+      ));
+    } catch (e) {
+      dbg(`Could not broadcast message to channel #${channelId} to all nodes.\n` +
+        'For reliable delivery, use AMQP (RabbitMQ, ActiveMQ...)');
+    }
 
     ctx.body = {
       ok: true,
@@ -108,6 +121,8 @@ async function create(ctx) {
 }
 
 export default (app, baseUrl) => {
+  consul = Consul({ promisify: true });
+
   const router = new Router({
     prefix: baseUrl,
   });

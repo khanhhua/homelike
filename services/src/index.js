@@ -33,12 +33,19 @@ sse.on('connection', (clientSocket, query) => {
   dbg('Connection inbound');
   registerClient(clientSocket, query);
 });
-server.listen(3838, async () => {
-  const CONSUL_HOST = process.env.CONSUL_HOST || 'localhost:8500';
-  const SERVICE_ID = 'sse-connector-1';
-  dbg(`Joining consul ${CONSUL_HOST}...`);
 
-  const consul = Consul({ promisify: true });
+const CONSUL_URL = process.env.CONSUL_URL || 'localhost:8500';
+const ADVERTISED_HOSTNAME = process.env.ADVERTISED_HOSTNAME;
+const ADVERTISED_PORT = process.env.ADVERTISED_PORT;
+if (!(ADVERTISED_HOSTNAME && ADVERTISED_PORT)) {
+  process.exit(1);
+}
+
+server.listen(ADVERTISED_PORT, ADVERTISED_HOSTNAME, async () => {
+  const SERVICE_ID = process.env.SERVICE_ID;
+  dbg(`Joining consul ${CONSUL_URL} as ${SERVICE_ID}:${ADVERTISED_PORT}...`);
+
+  const consul = Consul({ baseUrl: CONSUL_URL, promisify: true });
   try {
     await consul.agent.service.register({
       name: 'sse-connector',
@@ -48,10 +55,10 @@ server.listen(3838, async () => {
         'urlprefix-/api/clients',
         'urlprefix-/api/chats',
         'urlprefix-/sse'],
-      address: '192.168.0.186',
-      port: 3838,
+      address: '172.28.0.3',
+      port: ADVERTISED_PORT,
       check: {
-        http: 'http://192.168.0.186:3838/health',
+        http: `http://${ADVERTISED_HOSTNAME}:${ADVERTISED_PORT}/health`,
         interval: '15s',
       },
       notes: 'Simple SSE Connector check',

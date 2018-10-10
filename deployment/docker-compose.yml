@@ -1,0 +1,44 @@
+version: '3.6'
+services:
+  consul:
+    image: consul
+    hostname: consul
+    ports:
+      - 8500
+      - 8600
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+
+#  fabio:
+#    image: fabiolb/fabio
+#    ports:
+#      - 9999
+#      - 9998
+#    command: ["/fabio", "-cfg", "/etc/fabio/fabio.properties", "-registry.consul.addr", "consul:8500"]
+#
+#  mongodb:
+#    image: mongo:3.2.21-jessie
+#    hostname: mongodb
+#    ports:
+#      - 27017:27017
+#    volumes:
+#      - ./data/db:/data/db
+#
+#  web-api:
+#    build:
+#      context: ../web-api
+#      dockerfile: Dockerfile
+#    env_file:
+#      - ../web-api/.env.docker
+
+  sse-connector-1:
+    build:
+      context: ../services
+      dockerfile: Dockerfile
+    hostname: sse-connector-1
+    env_file:
+      - ../services/.env.docker
+    environment:
+      - SERVICE_ID=sse-connector-1
+      - ADVERTISED_HOSTNAME=sse-connector-1
+      - ADVERTISED_PORT=3838
