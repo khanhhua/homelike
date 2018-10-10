@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 import { createServer } from 'http';
 
 import Koa from 'koa';
@@ -34,18 +35,18 @@ sse.on('connection', (clientSocket, query) => {
   registerClient(clientSocket, query);
 });
 
-const CONSUL_URL = process.env.CONSUL_URL || 'localhost:8500';
+const { CONSUL_HOSTNAME, CONSUL_PORT } = process.env;
 const ADVERTISED_HOSTNAME = process.env.ADVERTISED_HOSTNAME;
-const ADVERTISED_PORT = process.env.ADVERTISED_PORT;
+const ADVERTISED_PORT = parseInt(process.env.ADVERTISED_PORT || '3838', 10);
+const SERVICE_ID = process.env.SERVICE_ID;
 if (!(ADVERTISED_HOSTNAME && ADVERTISED_PORT)) {
   process.exit(1);
 }
 
 server.listen(ADVERTISED_PORT, ADVERTISED_HOSTNAME, async () => {
-  const SERVICE_ID = process.env.SERVICE_ID;
-  dbg(`Joining consul ${CONSUL_URL} as ${SERVICE_ID}:${ADVERTISED_PORT}...`);
+  dbg(`Joining consul ${CONSUL_HOSTNAME} as ${SERVICE_ID}:${ADVERTISED_PORT}...`);
 
-  const consul = Consul({ baseUrl: CONSUL_URL, promisify: true });
+  const consul = Consul({ host: CONSUL_HOSTNAME, port: CONSUL_PORT, promisify: true });
   try {
     await consul.agent.service.register({
       name: 'sse-connector',
@@ -55,7 +56,7 @@ server.listen(ADVERTISED_PORT, ADVERTISED_HOSTNAME, async () => {
         'urlprefix-/api/clients',
         'urlprefix-/api/chats',
         'urlprefix-/sse'],
-      address: '172.28.0.3',
+      address: ADVERTISED_HOSTNAME,
       port: ADVERTISED_PORT,
       check: {
         http: `http://${ADVERTISED_HOSTNAME}:${ADVERTISED_PORT}/health`,

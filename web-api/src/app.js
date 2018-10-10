@@ -19,7 +19,16 @@ export default function makeApp() {
   const app = new Koa();
   const document = swagger.loadDocumentSync('./swagger/api.yaml');
 
-  app.use(jwtMiddleware({ secret: JWT_SECRET }).unless({ path: [/^\/swagger/, /^\/api\/v1\/auth/] }));
+  app.use(jwtMiddleware({ secret: JWT_SECRET }).unless({ path: ['/health', /^\/swagger/, /^\/api\/v1\/auth/] }));
+  app.use(async (ctx, next) => {
+    if (ctx.path === '/health') {
+      ctx.body = 'OK';
+
+      return;
+    }
+
+    await next();
+  });
   app.use(bodyParser());
   app.use(async (ctx, next) => {
     try {

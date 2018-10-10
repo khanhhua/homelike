@@ -8,8 +8,6 @@ import { format } from './utils';
 
 const dbg = debug('web-api:messages');
 
-let consul;
-
 async function list(ctx) {
   const { channelId } = ctx.params;
   const { anchor = 0 } = ctx.query;
@@ -89,26 +87,27 @@ async function create(ctx) {
     });
 
     try {
-      const { CONSUL_URL } = process.env;
-      const result = await rp(`${CONSUL_URL}/v1/health/service/sse-connector`).then(res => JSON.parse(res));
+      const { CONSUL_HOSTNAME, CONSUL_PORT } = process.env;
+      const result = await rp(`http://${CONSUL_HOSTNAME}:${CONSUL_PORT}/v1/health/service/sse-connector`)
+        .then(res => JSON.parse(res));
+
+      dbg('result:', result);
       const urls = result.map(({ Service: { Address, Port } }) => `http://${Address}:${Port}`);
       dbg(`Broadcast message to channel #${channelId} at host:ports`, urls);
 
-      await Promise.all(urls.map(url =>
-        rp(`${url}/api/chats`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            channelId,
-            message: format(message),
-          }),
-        })
-      ));
+      await Promise.all(urls.map(url => rp(`${url}/api/chats`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          channelId,
+          message: format(message),
+        }),
+      })));
     } catch (e) {
-      dbg(`Could not broadcast message to channel #${channelId} to all nodes.\n` +
-        'For reliable delivery, use AMQP (RabbitMQ, ActiveMQ...)');
+      dbg(`Could not broadcast message to channel #${channelId} to all nodes.\n`
+        + 'For reliable delivery, use AMQP (RabbitMQ, ActiveMQ...)');
     }
 
     ctx.body = {
@@ -121,8 +120,6 @@ async function create(ctx) {
 }
 
 export default (app, baseUrl) => {
-  consul = Consul({ promisify: true });
-
   const router = new Router({
     prefix: baseUrl,
   });
