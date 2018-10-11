@@ -1,13 +1,19 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import {
   FormGroup, ControlLabel, FormControl, Grid, Row, Col, Button,
 } from 'react-bootstrap';
-import AppContext from '../AppContext';
+// import AppContext from '../AppContext';
+import { connect } from 'react-redux';
 import * as actions from '../store/actions';
 
 import styles from './login-page.module.scss';
 
-export default class Login extends Component {
+class LoginPage extends Component {
+  static propTypes = {
+    dispatch: PropTypes.func.isRequired,
+  };
+
   state = {
     registering: 0,
     email: '',
@@ -19,6 +25,7 @@ export default class Login extends Component {
     const {
       registering, email, password, repassword,
     } = this.state;
+    const { dispatch } = this.props;
 
     return (
       <div className={styles['login-page']}>
@@ -64,46 +71,38 @@ export default class Login extends Component {
                 )}
                 {registering === 0
                 && (
-                  <AppContext.Consumer>
-                    {({ dispatch }) => (
-                      <>
-                        <Button
-                          className="btn-light m-1"
-                          onClick={() => this.setState({ registering: 1 })}
-                        >
-                          Register
-                        </Button>
-                        <Button
-                          className="btn-primary m-1"
-                          onClick={() => dispatch(actions.authenticate(email, password))}
-                        >
-                          Login
-                        </Button>
-                      </>
-                    )}
-                  </AppContext.Consumer>
+                  <>
+                    <Button
+                      className="btn-light m-1"
+                      onClick={() => this.setState({ registering: 1 })}
+                    >
+                      Register
+                    </Button>
+                    <Button
+                      className="btn-primary m-1"
+                      onClick={() => dispatch(actions.authenticate(email, password))}
+                    >
+                      Login
+                    </Button>
+                  </>
                 )}
                 {registering === 1
                 && (
-                  <AppContext.Consumer>
-                    {({ dispatch }) => (
-                      <>
-                        <Button
-                          className="btn-primary m-1"
-                          onClick={() => dispatch(actions.register(email, password))}
-                          disabled={repassword !== password}
-                        >
-                          Register
-                        </Button>
-                        <Button
-                          className="btn-light m-1"
-                          onClick={() => this.setState({ registering: 0, repassword: '' })}
-                        >
-                          Cancel
-                        </Button>
-                      </>
-                    )}
-                  </AppContext.Consumer>
+                  <>
+                    <Button
+                      className="btn-primary m-1"
+                      onClick={() => dispatch(actions.register(email, password))}
+                      disabled={repassword !== password}
+                    >
+                      Register
+                    </Button>
+                    <Button
+                      className="btn-light m-1"
+                      onClick={() => this.setState({ registering: 0, repassword: '' })}
+                    >
+                      Cancel
+                    </Button>
+                  </>
                 )}
               </div>
             </Col>
@@ -113,3 +112,5 @@ export default class Login extends Component {
     );
   }
 }
+
+export default connect(null, dispatch => ({ dispatch }))(LoginPage);

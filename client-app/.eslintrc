@@ -10,6 +10,8 @@
   "rules": {
     "max-len": ["error", { "code": 120 }],
     "react/jsx-filename-extension": "off",
+    "react/forbid-prop-types": "off",
+    "react/prefer-stateless-function": "off",
     "import/prefer-default-export": "off",
     "no-unused-vars": ["error", { "vars": "all", "argsIgnorePattern": "^_" }],
     "babel/new-cap": 0,
