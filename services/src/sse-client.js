@@ -20,7 +20,7 @@ const packet = (data) => {
   }
 
   return serialized;
-}
+};
 
 /**
  *
@@ -117,7 +117,7 @@ export const sendTo = ({ userId, channelId }, message) => {
     return;
   }
 
-  let data = packet(message);
+  const data = packet(message);
   clientSockets.forEach((socket) => {
     socket.send('chat', data);
   });

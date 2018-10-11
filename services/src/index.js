@@ -26,6 +26,8 @@ internalHandlers(app);
 const server = createServer(app.callback()); // eslint-disable-line
 const sse = new SSE(server, {
   path: '/sse/*',
+  CORS: true,
+  verifyRequest: null,
 });
 
 const dbg = debug('services');
@@ -43,7 +45,7 @@ if (!(ADVERTISED_HOSTNAME && ADVERTISED_PORT)) {
   process.exit(1);
 }
 
-server.listen(ADVERTISED_PORT, ADVERTISED_HOSTNAME, async () => {
+server.listen(ADVERTISED_PORT, async () => {
   dbg(`Joining consul ${CONSUL_HOSTNAME} as ${SERVICE_ID}:${ADVERTISED_PORT}...`);
 
   const consul = Consul({ host: CONSUL_HOSTNAME, port: CONSUL_PORT, promisify: true });
