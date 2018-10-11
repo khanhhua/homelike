@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { HashRouter as Router, Route } from 'react-router-dom';
+
 import PropTypes from 'prop-types';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -24,10 +26,12 @@ class App extends Component {
   render() {
     return (
       <div className="app">
-        <AppContext.Provider value={this.props}>
-          <LoginPage />
-          <ChatPage />
-        </AppContext.Provider>
+        <Router>
+          <AppContext.Provider value={this.props}>
+            <Route exact path="/" component={LoginPage} />
+            <Route path="/channels" component={ChatPage} />
+          </AppContext.Provider>
+        </Router>
       </div>
     );
   }

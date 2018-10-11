@@ -1,4 +1,9 @@
 import {
+  push,
+  replace,
+} from 'react-router-redux';
+
+import {
   ACTION_REGISTER,
   ACTION_AUTHENTICATE,
   ACTION_LOAD_CHANNELS,
@@ -25,10 +30,11 @@ export const register = (email, password) => async (dispatch) => {
   try {
     const result = await api.register(email, password);
     if (result === true) {
-      window.location.reload();
-    } else {
-      dispatch(action(ACTION_REGISTER, ACTION_STATUS_ERROR, result.errors));
+      dispatch(replace('/'));
+      return;
     }
+
+    dispatch(action(ACTION_REGISTER, ACTION_STATUS_ERROR, result.errors));
   } catch (e) {
     dispatch(action(ACTION_REGISTER, ACTION_STATUS_ERROR, e));
   }
@@ -43,6 +49,7 @@ export const authenticate = (email, password) => async (dispatch) => {
 
     localStorage.setItem('authToken', authToken);
     dispatch(action(ACTION_AUTHENTICATE, ACTION_STATUS_SUCESS, result));
+    dispatch(push('/channels'));
   } catch (e) {
     dispatch(action(ACTION_AUTHENTICATE, ACTION_STATUS_ERROR, e));
   }
