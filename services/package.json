@@ -30,7 +30,7 @@
     "koa-bodyparser": "^4.2.1",
     "koa-router": "^7.4.0",
     "route-parser": "0.0.5",
-    "sse": "git+https://github.com/khanhhua/sse.js",
+    "sse": "^0.0.8",
     "uuid": "^3.3.2"
   }
 }

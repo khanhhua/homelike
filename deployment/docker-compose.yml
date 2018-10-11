@@ -11,7 +11,7 @@ services:
       CONSUL_LOCAL_CONFIG: '{"skip_leave_on_interrupt": true, "log_level": "err"}'
 
   fabio:
-    image: magiconair/fabio
+    image: magiconair/fabio:1.4.4-go1.8.3
     depends_on:
       - consul
     ports:
