@@ -1,9 +1,11 @@
+/* eslint-disable */
+
 import Immutable from 'immutable';
 import { ACTION_RECEIVE_MESSAGES, ACTION_SELECT_CHANNEL } from './action-types';
-import { ACTION_STATUS_ERROR } from './action-statuses';
+import { ACTION_STATUS_SUCESS } from './action-statuses';
 
 export default (state = Immutable.Map(), action) => {
-  if (action.status === ACTION_STATUS_ERROR) {
+  if (action.status !== ACTION_STATUS_SUCESS) {
     return state;
   }
 
@@ -18,10 +20,11 @@ export default (state = Immutable.Map(), action) => {
 
       return state.updateIn([channelId], (existingChats) => {
         if (existingChats) {
-          const existingKeys = existingChats.reduce((acc, item) => acc.add(item.id),
+          const existingKeys = existingChats.reduce((acc, item) => acc.add(item.get('id')),
             Immutable.Set());
-          return messages.reduce(({ chats, keys }, item) => {
-            if (keys.has(item.id)) {
+
+          return Immutable.fromJS(messages).reduce(({ chats, keys }, item) => {
+            if (keys.has(item.get('id'))) {
               return { chats, keys };
             }
 
