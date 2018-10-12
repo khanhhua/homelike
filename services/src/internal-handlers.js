@@ -33,9 +33,21 @@ export default function (app) {
   router.put('/chats', (ctx) => {
     const { body } = ctx.request;
     const { userId, channelId, message } = body;
-    dbg('Broadcasting update for message:', message);
+    dbg('Broadcasting edit for message:', message);
 
-    sendTo({ userId, channelId }, message);
+    sendTo({ userId, channelId }, 'chat.edit', message);
+
+    ctx.body = {
+      ok: true,
+    };
+  });
+
+  router.delete('/chats', (ctx) => {
+    const { body } = ctx.request;
+    const { userId, channelId, message } = body;
+    dbg('Broadcasting removal for message:', message);
+
+    sendTo({ userId, channelId }, 'chat.remove', message);
 
     ctx.body = {
       ok: true,

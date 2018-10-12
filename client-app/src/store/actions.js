@@ -9,6 +9,8 @@ import {
   ACTION_LOAD_CHANNELS,
   ACTION_SELECT_CHANNEL,
   ACTION_RECEIVE_MESSAGES,
+  ACTION_EDIT_MESSAGES,
+  ACTION_REMOVE_MESSAGES,
   ACTION_SEND_TO_CHANNEL,
   ACTION_LOAD_PROFILE,
   ACTION_SAVE_PROFILE,
@@ -77,15 +79,36 @@ export const selectChannel = channel => async (dispatch) => {
     dispatch(action(ACTION_SELECT_CHANNEL, ACTION_STATUS_SUCESS, updatedChannel));
 
     anchor = getChannelAnchor(updatedChannel);
-    getStreamer().subscribe(channel.id, { anchor }, (err, messages) => {
-      if (err) {
-        return;
-      }
-      dispatch(action(ACTION_RECEIVE_MESSAGES, ACTION_STATUS_SUCESS, {
-        ...channel,
-        messages,
-      }));
-    });
+    getStreamer().subscribe(channel.id, { anchor },
+      {
+        receiveCallback(err, messages) {
+          if (err) {
+            return;
+          }
+          dispatch(action(ACTION_RECEIVE_MESSAGES, ACTION_STATUS_SUCESS, {
+            ...channel,
+            messages,
+          }));
+        },
+        editCallback(err, messages) {
+          if (err) {
+            return;
+          }
+          dispatch(action(ACTION_EDIT_MESSAGES, ACTION_STATUS_SUCESS, {
+            ...channel,
+            messages,
+          }));
+        },
+        removeCallback(err, messages) {
+          if (err) {
+            return;
+          }
+          dispatch(action(ACTION_REMOVE_MESSAGES, ACTION_STATUS_SUCESS, {
+            ...channel,
+            messages,
+          }));
+        },
+      });
   } catch (e) {
     dispatch(action(ACTION_SELECT_CHANNEL, ACTION_STATUS_ERROR, e));
   }

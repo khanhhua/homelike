@@ -195,7 +195,7 @@ paths:
           schema:
             $ref: '#/definitions/ApiResponse'
 
-  '/channels/{channelId}/{messageId}':
+  '/channels/{channelId}/messages/{messageId}':
     delete:
       tags:
         - message

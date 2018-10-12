@@ -5,7 +5,7 @@ let instance;
 class Streamer {
   eventSource = null;
 
-  subscribe(channelId, opts, callback) {
+  subscribe(channelId, opts, { receiveCallback = null, editCallback = null, removeCallback = null }) {
     if (this.eventSource) {
       this.eventSource.close();
       this.eventSource = null;
@@ -22,17 +22,47 @@ class Streamer {
       console.info(`Connection UUID: ${e.data}`);
     });
 
-    es.addEventListener('chat', (e) => {
-      const { data: raw } = e;
-      const data = JSON.parse(raw);
-      console.debug('Streamer:on(chat)', data);
+    if (typeof receiveCallback === 'function') {
+      es.addEventListener('chat', (e) => {
+        const { data: raw } = e;
+        const data = JSON.parse(raw);
+        console.debug('Streamer:on(chat)', data);
 
-      if (Array.isArray(data)) {
-        callback(null, data);
-      } else {
-        callback(null, [data]);
-      }
-    });
+        if (Array.isArray(data)) {
+          receiveCallback(null, data);
+        } else {
+          receiveCallback(null, [data]);
+        }
+      });
+    }
+
+    if (typeof editCallback === 'function') {
+      es.addEventListener('chat.edit', (e) => {
+        const { data: raw } = e;
+        const data = JSON.parse(raw);
+        console.debug('Streamer:on(chat.edit)', data);
+
+        if (Array.isArray(data)) {
+          editCallback(null, data);
+        } else {
+          editCallback(null, [data]);
+        }
+      });
+    }
+
+    if (typeof removeCallback === 'function') {
+      es.addEventListener('chat.remove', (e) => {
+        const { data: raw } = e;
+        const data = JSON.parse(raw);
+        console.debug('Streamer:on(chat.remove)', data);
+
+        if (Array.isArray(data)) {
+          removeCallback(null, data);
+        } else {
+          removeCallback(null, [data]);
+        }
+      });
+    }
 
     this.eventSource = es;
   }
