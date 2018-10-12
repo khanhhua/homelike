@@ -3,6 +3,9 @@ import Route from 'route-parser';
 import uuidV4 from 'uuid/v4';
 import debug from 'debug';
 
+export const EVENT_TYPE_CREATE = 'chat';
+export const EVENT_TYPE_EDIT = 'chat.edit';
+
 const dbg = debug('services:sse-client');
 const sockets = {};
 const users = {};
@@ -104,7 +107,7 @@ export const registerClient = (socket, _query) => {
   socket.send('pong', packet(uuid.toString()));
 };
 
-export const sendTo = ({ userId, channelId }, message) => {
+export const sendTo = ({ userId, channelId }, eventType, message) => {
   let clientSockets;
 
   if (userId) {
@@ -119,6 +122,6 @@ export const sendTo = ({ userId, channelId }, message) => {
 
   const data = packet(message);
   clientSockets.forEach((socket) => {
-    socket.send('chat', data);
+    socket.send(eventType, data);
   });
 };

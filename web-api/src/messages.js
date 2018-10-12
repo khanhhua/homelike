@@ -9,6 +9,46 @@ import { format } from './utils';
 
 const dbg = debug('web-api:messages');
 
+async function broadcastChatMessage(type, channelId, message) {
+  let method = null;
+
+  switch (type) {
+    case 'create': method = 'POST'; break;
+    case 'edit': method = 'PUT'; break;
+    default:
+      return;
+  }
+
+  const { CONSUL_HOSTNAME, CONSUL_PORT } = process.env;
+  if (!(CONSUL_HOSTNAME, CONSUL_PORT)) {
+    dbg('Broadcast enabled only in cluster mode');
+    return;
+  }
+
+  try {
+    const result = await rp(`http://${CONSUL_HOSTNAME}:${CONSUL_PORT}/v1/health/service/sse-connector`)
+      .then(res => JSON.parse(res));
+
+    dbg('result:', result);
+    const urls = result.map(({ Service: { Address, Port } }) => `http://${Address}:${Port}`);
+    dbg(`Broadcast message to channel #${channelId} at host:ports`, urls);
+
+    await Promise.all(urls.map(url => rp(`${url}/api/chats`, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        channelId,
+        message,
+      }),
+    })));
+  } catch (e) {
+    dbg(`Could not broadcast message to channel #${channelId} to all nodes.\n`
+      + 'For reliable delivery, use AMQP (RabbitMQ, ActiveMQ...)');
+  }
+}
+
 async function list(ctx) {
   const { channelId } = ctx.params;
   const { anchor = 0 } = ctx.query;
@@ -35,11 +75,14 @@ async function list(ctx) {
 }
 
 async function edit(ctx) {
+  const { user } = ctx.state;
   const { channelId, messageId } = ctx.params;
   const { text } = ctx.request.body;
-  dbg(`Editing one message located at #${channelId}/#${messageId}`);
 
   try {
+    const sender = user.sub;
+    dbg(`User ${sender} editing one message located at #${channelId}/#${messageId}`);
+
     // TODO Iterate over chunks starting from today
     const chunk = await db.ChannelChunk.findOne({ channelId }).sort('-createdAt').select('_id').lean()
       .exec();
@@ -48,14 +91,33 @@ async function edit(ctx) {
     }
 
     dbg(`Updating chunk #${chunk._id}...`);
-    await db.ChannelChunk.updateOne(
-      { _id: chunk._id, 'messages._id': messageId },
+    const result = await db.ChannelChunk.updateOne(
+      {
+        _id: chunk._id,
+        messages: { $elemMatch: { _id: messageId, sender } },
+      },
       { $set: { 'messages.$.body': text } },
     );
 
-    ctx.body = {
-      ok: true,
-    };
+    dbg('Update result:', result);
+
+    if (result.ok) {
+      const message = {
+        id: messageId,
+        body: text,
+        sender,
+      };
+      await broadcastChatMessage('edit', channelId, format(message));
+
+      ctx.body = {
+        ok: true,
+      };
+    } else {
+      ctx.body = {
+        ok: false,
+        errors: ['Could not update message'],
+      };
+    }
   } catch (e) {
     ctx.throw(e);
   }
@@ -99,29 +161,7 @@ async function create(ctx) {
       });
     });
 
-    try {
-      const { CONSUL_HOSTNAME, CONSUL_PORT } = process.env;
-      const result = await rp(`http://${CONSUL_HOSTNAME}:${CONSUL_PORT}/v1/health/service/sse-connector`)
-        .then(res => JSON.parse(res));
-
-      dbg('result:', result);
-      const urls = result.map(({ Service: { Address, Port } }) => `http://${Address}:${Port}`);
-      dbg(`Broadcast message to channel #${channelId} at host:ports`, urls);
-
-      await Promise.all(urls.map(url => rp(`${url}/api/chats`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          channelId,
-          message: format(message),
-        }),
-      })));
-    } catch (e) {
-      dbg(`Could not broadcast message to channel #${channelId} to all nodes.\n`
-        + 'For reliable delivery, use AMQP (RabbitMQ, ActiveMQ...)');
-    }
+    await broadcastChatMessage('create', channelId, format(message));
 
     ctx.body = {
       ok: true,

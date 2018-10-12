@@ -1,6 +1,6 @@
 import debug from 'debug';
 import Router from 'koa-router';
-import { query, sendTo } from './sse-client';
+import { query, sendTo, EVENT_TYPE_CREATE, EVENT_TYPE_EDIT } from './sse-client';
 
 const dbg = debug('services:internal-handlers');
 
@@ -21,7 +21,19 @@ export default function (app) {
   router.post('/chats', (ctx) => {
     const { body } = ctx.request;
     const { userId, channelId, message } = body;
-    dbg('message:', message);
+    dbg('Broadcasting new message:', message);
+
+    sendTo({ userId, channelId }, 'chat', message);
+
+    ctx.body = {
+      ok: true,
+    };
+  });
+
+  router.put('/chats', (ctx) => {
+    const { body } = ctx.request;
+    const { userId, channelId, message } = body;
+    dbg('Broadcasting update for message:', message);
 
     sendTo({ userId, channelId }, message);
 
