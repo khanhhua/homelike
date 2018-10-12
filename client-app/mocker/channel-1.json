@@ -1,16 +1,19 @@
 {
-  "id": "1",
-  "name": "Channel 1",
-  "chatters": [
-    {
-      "id": "u1",
-      "name": "User One"
-    },
-    {
-      "id": "u2",
-      "name": "User Two"
-    }
-  ],
-  "createdAt": "2018-10-01T00:00:00Z",
-  "lastMsgAt": "2018-10-01T00:00:00Z"
+  "ok": true,
+  "channel": {
+    "id": "1",
+    "name": "Channel 1",
+    "chatters": [
+      {
+        "id": "u1",
+        "name": "User One"
+      },
+      {
+        "id": "u2",
+        "name": "User Two"
+      }
+    ],
+    "createdAt": "2018-10-01T00:00:00Z",
+    "lastMsgAt": "2018-10-01T00:00:00Z"
+  }
 }

@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "profile": {
+    "username": "user1",
+    "displayName": "User One",
+    "work": "Web Developer",
+    "phone": "+65 8989 0991",
+    "timezone": "Asia/Kuala_Lumpur",
+    "avatarUrl": "https://picsum.photos/192/192"
+  }
+}

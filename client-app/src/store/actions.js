@@ -10,6 +10,8 @@ import {
   ACTION_SELECT_CHANNEL,
   ACTION_RECEIVE_MESSAGES,
   ACTION_SEND_TO_CHANNEL,
+  ACTION_LOAD_PROFILE,
+  ACTION_SAVE_PROFILE,
 } from './action-types';
 
 import * as api from './api';
@@ -97,5 +99,27 @@ export const sendMessage = (channelId, message) => async (dispatch) => {
     dispatch(action(ACTION_SEND_TO_CHANNEL, ACTION_STATUS_SUCESS, updatedMesssage));
   } catch (e) {
     dispatch(action(ACTION_SEND_TO_CHANNEL, ACTION_STATUS_ERROR, e));
+  }
+};
+
+export const loadProfile = () => async (dispatch) => {
+  dispatch(action(ACTION_LOAD_PROFILE, ACTION_STATUS_PENDING));
+
+  try {
+    const profile = await api.loadProfile();
+    dispatch(action(ACTION_LOAD_PROFILE, ACTION_STATUS_SUCESS, profile));
+  } catch (e) {
+    dispatch(action(ACTION_LOAD_PROFILE, ACTION_STATUS_ERROR, e));
+  }
+};
+
+export const saveProfile = profile => async (dispatch) => {
+  dispatch(action(ACTION_SAVE_PROFILE, ACTION_STATUS_PENDING));
+
+  try {
+    const updatedProfile = await api.saveProfile(profile);
+    dispatch(action(ACTION_SAVE_PROFILE, ACTION_STATUS_SUCESS, updatedProfile));
+  } catch (e) {
+    dispatch(action(ACTION_SAVE_PROFILE, ACTION_STATUS_ERROR, e));
   }
 };

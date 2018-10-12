@@ -83,3 +83,32 @@ export async function sendMessage(channelId, message) {
 
   return body;
 }
+
+export async function loadProfile() {
+  const body = await fetch(`${baseURL}/profile`, {
+    method: 'GET',
+    headers: createHeaders(),
+    cache: 'no-cache',
+  }).then(res => res.json());
+
+  if (body.ok) {
+    return body.profile;
+  }
+
+  return body;
+}
+
+export async function saveProfile(profile) {
+  const body = await fetch(`${baseURL}/profile`, {
+    method: 'PUT',
+    headers: createHeaders(),
+    cache: 'no-cache',
+    body: JSON.stringify(profile),
+  }).then(res => res.json());
+
+  if (body.ok) {
+    return body.profile;
+  }
+
+  return body;
+}

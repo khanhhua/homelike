@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import {
   FormGroup, ControlLabel, FormControl, Grid, Row, Col, Button,
 } from 'react-bootstrap';
-// import AppContext from '../AppContext';
 import { connect } from 'react-redux';
 import * as actions from '../store/actions';
 

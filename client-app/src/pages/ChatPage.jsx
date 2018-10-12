@@ -1,7 +1,9 @@
+import Immutable from 'immutable';
 import React, { Component } from 'react';
 import { Col, Grid, Row } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import AppContext from '../AppContext';
 
 import ChatList from '../components/ChatList';
@@ -36,7 +38,9 @@ class ChatPage extends Component {
                 {!!auth
                 && (
                   <div className="user-badge">
-                    {auth.username}
+                    <Link to="/profile">
+                      {auth.username}
+                    </Link>
                   </div>
                 )}
                 <ChatList channels={channels} dispatch={dispatch} />
@@ -57,7 +61,7 @@ class ChatPage extends Component {
   }
 }
 
-const mapStateToProps = (state = {}) => {
+const mapStateToProps = (state = Immutable.Map()) => {
   const active = state.get('active');
 
   return {

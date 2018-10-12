@@ -11,8 +11,10 @@ import users from './users';
 import chats from './chats';
 import channels from './channels';
 import active from './active';
+import profile from './profile';
 
 const rootReducer = combineReducers({
+  profile,
   auth,
   users,
   channels,

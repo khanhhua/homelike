@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import LoginPage from './pages/LoginPage';
 import ChatPage from './pages/ChatPage';
+import ProfilePage from './pages/ProfilePage';
 
 export default () => (
   <div className="app">
@@ -13,6 +14,7 @@ export default () => (
       <Switch>
         <Route exact path="/" component={LoginPage} />
         <Route path="/channels" component={ChatPage} />
+        <Route path="/profile" component={ProfilePage} />
       </Switch>
     </Router>
   </div>
