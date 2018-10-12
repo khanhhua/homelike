@@ -42,7 +42,7 @@ export async function authenticate(email, password) {
 }
 
 export async function findUsers(userIds) {
-  const body = await fetch(`${baseURL}/users?ids=${userIds.join(',')}`, {
+  const body = await fetch(`${baseURL}/users?${userIds.map(id => `ids=${id}`).join('&')}`, {
     method: 'GET',
     cache: 'no-cache',
     headers: createHeaders(),

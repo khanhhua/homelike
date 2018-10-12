@@ -260,6 +260,30 @@ paths:
           schema:
             $ref: '#/definitions/ApiResponse'
 
+  '/users':
+    get:
+      tags:
+        - profile
+      summary: Query user profiles
+      parameters:
+        - in: query
+          name: ids
+          schema:
+            type: array
+            items:
+              type: string
+          description: Array of user id to query
+
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ProfileListResponse'
+        '400':
+          description: bad request
+          schema:
+            $ref: '#/definitions/ApiResponse'
+
   '/profile':
     get:
       tags:
@@ -432,6 +456,19 @@ definitions:
         type: boolean
       profile:
         $ref: '#/definitions/Profile'
+
+  ProfileListResponse:
+    type: object
+    require:
+      - ok
+      - profile
+    properties:
+      ok:
+        type: boolean
+      users:
+        type: array
+        items:
+          $ref: '#/definitions/Profile'
 
   MessageResponse:
     type: object

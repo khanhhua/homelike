@@ -7,6 +7,7 @@ import { format } from './utils';
 
 const dbg = debug('web-api:profile');
 
+const PROFILE_PROJECTION = 'username displayName email work phone avatarUrl';
 /**
  *
  * @param ctx
@@ -17,7 +18,9 @@ async function view(ctx) {
 
   try {
     dbg(`Finding user profile #${user.sub}`);
-    const profile = await User.findById(user.sub).lean().exec(); // TODO drop password
+    const profile = await User.findById(user.sub)
+      .select(PROFILE_PROJECTION).lean()
+      .exec();
 
     if (!profile) {
       ctx.throw(400, 'User not found'); // which is strange!
@@ -26,6 +29,34 @@ async function view(ctx) {
     ctx.body = {
       ok: true,
       profile: format(profile),
+    };
+  } catch (e) {
+    ctx.throw(500, e);
+  }
+}
+
+/**
+ *
+ * @param ctx
+ * @returns {Promise<ProfileResponse>}
+ */
+async function list(ctx) {
+  const { ids } = ctx.query;
+
+  try {
+    dbg(`Querying user profiles: ${ids}`);
+
+    const criteria = {};
+    if (ids) {
+      criteria._id = { $in: ids }; // eslint-disable-line
+    }
+    const users = await User.find(criteria).limit(100)
+      .select(PROFILE_PROJECTION).lean()
+      .exec();
+
+    ctx.body = {
+      ok: true,
+      users: users.map(format),
     };
   } catch (e) {
     ctx.throw(500, e);
@@ -86,6 +117,7 @@ export default (app, baseUrl) => {
     prefix: baseUrl,
   });
 
+  router.get('/users', list);
   router.get('/profile', view);
   router.put('/profile', update);
 

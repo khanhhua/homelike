@@ -1,6 +1,10 @@
 import mongoose from 'mongoose';
 
 export function format(model) {
+  if (model instanceof mongoose.Types.ObjectId) {
+    return model.toString();
+  }
+
   const ret = {};
   const keys = Object.getOwnPropertyNames(model);
 
@@ -16,6 +20,8 @@ export function format(model) {
         ret[key] = model[key].toISOString();
       } else if (model[key].constructor === mongoose.Types.ObjectId) {
         ret[key] = model[key].toString();
+      } else if (Array.isArray(model[key])) {
+        ret[key] = model[key].map(format);
       } else {
         ret[key] = model[key];
       }
