@@ -18,6 +18,8 @@ tags:
     description: Channel or topic of the chat
   - name: message
     description: Individual message
+  - name: profile
+    description: Individual profile
 schemes:
   - http
 paths:
@@ -228,6 +230,65 @@ paths:
           schema:
             $ref: '#/definitions/ApiResponse'
 
+  '/profile':
+    get:
+      tags:
+        - profile
+      summary: Gets user profile
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ProfileResponse'
+        '400':
+          description: bad request
+          schema:
+            $ref: '#/definitions/ApiResponse'
+    put:
+      tags:
+        - profile
+      summary: Update user profile
+      parameters:
+        - in: body
+          name: profile
+          schema:
+            type: object
+            required:
+              - displayName
+              - timezone
+            properties:
+              displayName:
+                type: string
+              phone:
+                type: string
+              work:
+                type: string
+              timezone:
+                type: string
+              avatarBlob:
+                type: object
+                required:
+                  - mime
+                  - data
+                properties:
+                  mime:
+                    type: string
+                  data:
+                    type: string
+                    format: binary
+          description: The profile partially updated
+          required: true
+
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ProfileResponse'
+        '400':
+          description: bad request
+          schema:
+            $ref: '#/definitions/ApiResponse'
+
 definitions:
   Message:
     type: object
@@ -268,6 +329,36 @@ definitions:
         items:
           $ref: '#/definitions/Message'
 
+  Profile:
+    type: object
+    required:
+      - id
+      - displayName
+      - username
+      - email
+    properties:
+      id:
+        type: string
+      displayName:
+        type: string
+      username:
+        type: string
+      email:
+        type: string
+      phone:
+        type: string
+      work:
+        type: string
+      timezone:
+        type: string
+      avatarUrl:
+        type: string
+      avatarBlob:
+        type: string
+        format: binary
+      createdAt:
+        type: string
+
   ApiResponse:
     type: object
     required:
@@ -300,6 +391,17 @@ definitions:
         type: string
       id:
         type: string
+
+  ProfileResponse:
+    type: object
+    require:
+      - ok
+      - profile
+    properties:
+      ok:
+        type: boolean
+      profile:
+        $ref: '#/definitions/Profile'
 
   MessageResponse:
     type: object

@@ -9,6 +9,7 @@
   "plugins": ["babel", "jest"],
   "rules": {
     "max-len": ["error", { "code": 120 }],
+    "no-debugger": "off",
     "react/jsx-filename-extension": "off",
     "react/forbid-prop-types": "off",
     "react/prefer-stateless-function": "off",

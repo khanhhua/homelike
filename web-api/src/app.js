@@ -10,6 +10,7 @@ import jwtMiddleware from 'koa-jwt';
 import auth from './auth';
 import channels from './channels';
 import messages from './messages';
+import profile from './profile';
 
 const JWT_SECRET = process.env.JWT_SECRET || 's@cret';
 
@@ -64,6 +65,7 @@ export default function makeApp() {
   auth(app, '/api/v1');
   channels(app, '/api/v1');
   messages(app, '/api/v1');
+  profile(app, '/api/v1');
 
   return app;
 }

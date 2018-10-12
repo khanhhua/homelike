@@ -20,6 +20,11 @@ const UserSchema = new Schema(
     username: String,
     password: String,
     channels: [String],
+    displayName: String,
+    work: String,
+    phone: String,
+    timezone: String,
+    avatarUrl: String,
   }, schemaOptions);
 UserSchema.virtual('id').get(function () {
   return this._id.toHexString(); // eslint-disable-line

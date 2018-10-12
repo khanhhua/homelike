@@ -68,7 +68,7 @@ async function register(ctx) {
 
     const [username] = email.split('@');
     const hashedPass = hash(password);
-    await db.User.create({ username, email, password: hashedPass });
+    await db.User.create({ username, displayName: username, email, password: hashedPass });
 
     ctx.body = {
       ok: true,
