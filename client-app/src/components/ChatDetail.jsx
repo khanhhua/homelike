@@ -1,36 +1,40 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+// import { Image } from 'react-bootstrap';
 
 import AppContext from '../AppContext';
 import MessageList from './MessageList';
 import TalkBox from './TalkBox';
 
 import * as actions from '../store/actions';
+import ChatterBadge from './ChatterBadge';
+
+import styles from './chat-detail.module.scss';
 
 const ChatDetail = ({ channel, messages }) => (
   <div className="chat-detail">
     {!channel
     && (
-      <React.Fragment>
+      <>
         <p>Choose a channel...</p>
-      </React.Fragment>
+      </>
     )}
     {!!channel
     && (
-      <React.Fragment>
-        <div className="chat-meta">
-          <h3>
-            {channel.name}
-            &nbsp;#
-            {channel.id}
-          </h3>
-          <span>32 members</span>
+      <>
+        <div className={styles['chat-meta']}>
+          <div className={styles['chat-meta-chatters']}>
+            {channel.chatters.map(chatter => <ChatterBadge key={chatter.id} {...chatter} />)}
+          </div>
+          <p className="text-muted">
+            {`(${channel.chatters.length} members)`}
+          </p>
         </div>
         <MessageList messages={messages} />
         <AppContext.Consumer>
           {({ dispatch }) => <TalkBox onSend={text => dispatch(actions.sendMessage(channel.id, text))} />}
         </AppContext.Consumer>
-      </React.Fragment>
+      </>
     )}
   </div>
 );

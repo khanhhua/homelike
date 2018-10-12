@@ -1,0 +1,23 @@
+.chat-meta {
+  display: block;
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+
+.chat-meta-chatters {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.chatter-badge {
+  display: block;
+  flex: 0 0 auto;
+  margin: 0.2em 0.4em;
+
+  .image {
+    width: 32px;
+    vertical-align: middle;
+    margin-right: 0.1em;
+  }
+}
+

@@ -1,3 +1,4 @@
+export const ACTION_FIND_USERS = 'find-users';
 export const ACTION_LOAD_PROFILE = 'load-profile';
 export const ACTION_SAVE_PROFILE = 'save-profile';
 export const ACTION_REGISTER = 'register';

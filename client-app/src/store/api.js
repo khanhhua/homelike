@@ -41,6 +41,20 @@ export async function authenticate(email, password) {
   return body;
 }
 
+export async function findUsers(userIds) {
+  const body = await fetch(`${baseURL}/users?ids=${userIds.join(',')}`, {
+    method: 'GET',
+    cache: 'no-cache',
+    headers: createHeaders(),
+  }).then(res => res.json());
+
+  if (body.ok) {
+    return body.users;
+  }
+
+  return body;
+}
+
 export async function loadChannels() {
   const body = await fetch(`${baseURL}/channels`, {
     headers: createHeaders(),
@@ -48,7 +62,7 @@ export async function loadChannels() {
   }).then(res => res.json());
 
   if (body.ok) {
-    return body.channels;
+    return (body.channels || []).map(item => ({ ...item, chatters: item.chatters.map(id => ({ id })) }));
   }
 
   return body;
@@ -61,7 +75,10 @@ export async function loadChannel(id, { anchor }) {
   }).then(res => res.json());
 
   if (body.ok) {
-    return body.channel;
+    const { channel } = body;
+    const chatters = await findUsers(channel.chatters);
+
+    return { ...channel, chatters };
   }
 
   return body;

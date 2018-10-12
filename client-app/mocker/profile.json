@@ -1,6 +1,7 @@
 {
   "ok": true,
   "profile": {
+    "id": "u1",
     "username": "user1",
     "displayName": "User One",
     "work": "Web Developer",

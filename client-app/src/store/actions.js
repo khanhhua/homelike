@@ -73,9 +73,10 @@ export const loadChannels = () => async (dispatch) => {
 export const selectChannel = channel => async (dispatch) => {
   dispatch(action(ACTION_SELECT_CHANNEL, ACTION_STATUS_PENDING, channel));
 
+  let updatedChannel;
   try {
     let anchor = getChannelAnchor(channel);
-    const updatedChannel = await api.loadChannel(channel.id, { anchor });
+    updatedChannel = await api.loadChannel(channel.id, { anchor });
     dispatch(action(ACTION_SELECT_CHANNEL, ACTION_STATUS_SUCESS, updatedChannel));
 
     anchor = getChannelAnchor(updatedChannel);

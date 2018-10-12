@@ -30,7 +30,7 @@ class LoginPage extends Component {
       <div className={styles['login-page']}>
         <Grid>
           <Row className="justify-content-md-center">
-            <Col xs={12} md={4}>
+            <Col xs={12} md={5}>
               <h2>Welcome to Slack-alike</h2>
               <p>Where we developers come, talk and slack-alike</p>
 
@@ -70,7 +70,7 @@ class LoginPage extends Component {
                 )}
                 {registering === 0
                 && (
-                  <>
+                  <div className="text-center">
                     <Button
                       className="btn-light m-1"
                       onClick={() => this.setState({ registering: 1 })}
@@ -83,11 +83,11 @@ class LoginPage extends Component {
                     >
                       Login
                     </Button>
-                  </>
+                  </div>
                 )}
                 {registering === 1
                 && (
-                  <>
+                  <div className="text-center">
                     <Button
                       className="btn-primary m-1"
                       onClick={() => dispatch(actions.register(email, password))}
@@ -101,7 +101,7 @@ class LoginPage extends Component {
                     >
                       Cancel
                     </Button>
-                  </>
+                  </div>
                 )}
               </div>
             </Col>

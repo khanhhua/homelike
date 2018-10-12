@@ -8,12 +8,13 @@ import AppContext from '../AppContext';
 
 import ChatList from '../components/ChatList';
 import ChatDetail from '../components/ChatDetail';
-import { loadChannels } from '../store/actions';
+import { loadChannels, loadProfile } from '../store/actions';
+import ChatterBadge from '../components/ChatterBadge';
 
 class ChatPage extends Component {
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
-    auth: PropTypes.object.isRequired,
+    profile: PropTypes.object.isRequired,
     channels: PropTypes.array.isRequired,
     active: PropTypes.object.isRequired,
   };
@@ -21,12 +22,13 @@ class ChatPage extends Component {
   constructor(props) {
     super(props);
 
-    props.dispatch(loadChannels()); // eslint-disable-line
+    props.dispatch(loadChannels());
+    props.dispatch(loadProfile());
   }
 
   render() {
     const {
-      dispatch, auth, channels, active,
+      dispatch, profile, channels, active,
     } = this.props;
 
     return (
@@ -35,15 +37,15 @@ class ChatPage extends Component {
           <Row>
             <Col md={3}>
               <>
-                {!!auth
+                {!!profile
                 && (
                   <div className="user-badge">
                     <Link to="/profile">
-                      {auth.username}
+                      <ChatterBadge displayName={profile.username} avatarUrl={profile.avatarUrl} />
                     </Link>
                   </div>
                 )}
-                <ChatList channels={channels} dispatch={dispatch} />
+                <ChatList channels={channels} active={active.channel} dispatch={dispatch} />
               </>
             </Col>
             <Col md={9}>
@@ -66,10 +68,11 @@ const mapStateToProps = (state = Immutable.Map()) => {
 
   return {
     auth: state.get('auth') ? state.get('auth').toJS() : null,
+    profile: state.get('profile') ? state.get('profile').toJS() : null,
     users: state.get('users'),
     channels: state.get('channels').valueSeq().toJS(),
     active: {
-      channel: active ? state.getIn(['channels', active]) : null,
+      channel: active ? state.getIn(['channels', active]).toJS() : null,
       messages: active && state.getIn(['chats', active]) ? state.getIn(['chats', active]).toJS() : [],
     },
   };

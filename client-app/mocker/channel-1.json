@@ -3,16 +3,7 @@
   "channel": {
     "id": "1",
     "name": "Channel 1",
-    "chatters": [
-      {
-        "id": "u1",
-        "name": "User One"
-      },
-      {
-        "id": "u2",
-        "name": "User Two"
-      }
-    ],
+    "chatters": ["u1", "u2"],
     "createdAt": "2018-10-01T00:00:00Z",
     "lastMsgAt": "2018-10-01T00:00:00Z"
   }

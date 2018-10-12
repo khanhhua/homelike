@@ -29,14 +29,13 @@ export default class TalkBox extends Component {
           />
         </div>
         <Button
-          className="btn-primary"
+          className="btn-primary m-3"
           onClick={() => {
             onSend(text).then(() => this.setState({ text: '' }));
           }}
         >
           Send
         </Button>
-        <Button>Image</Button>
       </div>
     );
   }
