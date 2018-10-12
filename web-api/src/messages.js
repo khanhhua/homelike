@@ -1,3 +1,4 @@
+/* eslint no-underscore-dangle: "off" */
 import debug from 'debug';
 import Consul from 'consul';
 
@@ -33,20 +34,32 @@ async function list(ctx) {
   }
 }
 
-// async function view(ctx) {
-//   try {
-//     const { channelId, messageId } = ctx.params;
-//     dbg(`Viewing one message #${channelId}`);
-//     const channel = await db.Channel.findById(channelId).lean().exec();
-//
-//     ctx.body = {
-//       ok: true,
-//       channel: format(channel),
-//     };
-//   } catch (e) {
-//     ctx.throw(e);
-//   }
-// }
+async function edit(ctx) {
+  const { channelId, messageId } = ctx.params;
+  const { text } = ctx.request.body;
+  dbg(`Editing one message located at #${channelId}/#${messageId}`);
+
+  try {
+    // TODO Iterate over chunks starting from today
+    const chunk = await db.ChannelChunk.findOne({ channelId }).sort('-createdAt').select('_id').lean()
+      .exec();
+    if (!chunk) {
+      ctx.throw(404, 'Channel chunk not found');
+    }
+
+    dbg(`Updating chunk #${chunk._id}...`);
+    await db.ChannelChunk.updateOne(
+      { _id: chunk._id, 'messages._id': messageId },
+      { $set: { 'messages.$.body': text } },
+    );
+
+    ctx.body = {
+      ok: true,
+    };
+  } catch (e) {
+    ctx.throw(e);
+  }
+}
 
 async function create(ctx) {
   const { channelId } = ctx.params;
@@ -126,6 +139,7 @@ export default (app, baseUrl) => {
 
   router.get('/channels/:channelId/messages', list);
   router.post('/channels/:channelId/messages', create);
+  router.put('/channels/:channelId/:messageId', edit);
 
   dbg('Mounting messages module...');
   app.use(router.routes());

@@ -195,7 +195,34 @@ paths:
           schema:
             $ref: '#/definitions/ApiResponse'
 
-  '/messages/{channelId}/{messageId}':
+  '/channels/{channelId}/{messageId}':
+    delete:
+      tags:
+        - message
+      summary: Remove a message from channel
+      parameters:
+        - in: path
+          name: channelId
+          schema:
+            type: string
+          description: Channel ID which owns the message
+          required: true
+        - in: path
+          name: messageId
+          schema:
+            type: string
+          description: Message ID
+          required: true
+
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '400':
+          description: bad request
+          schema:
+            $ref: '#/definitions/ApiResponse'
     put:
       tags:
         - message
@@ -216,7 +243,10 @@ paths:
         - in: body
           name: message
           schema:
-            type: string
+            type: object
+            properties:
+              text:
+                type: string
           description: The new message content
           required: true
 
