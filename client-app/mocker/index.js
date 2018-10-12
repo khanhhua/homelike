@@ -6,8 +6,8 @@ let proxy = {
   _proxy: {
     proxy: {
       '/sse/*': 'http://localhost:9999',
-      // '/api/v1/*': 'http://localhost:9999',
-      '/api/v1/*': 'http://localhost:8080',
+      '/api/v1/*': 'http://localhost:9999',
+      // '/api/v1/*': 'http://localhost:8080',
     },
     changeHost: true,
   },
