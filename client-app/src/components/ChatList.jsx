@@ -7,10 +7,17 @@ import { Link } from 'react-router-dom';
 
 const ChatList = ({ channels, active }) => (
   <div className="chat-list">
-    {channels.length === 0
-    && <div data-test-id="message" className="alert alert-info">Empty</div>
-    }
     <ListGroup>
+      <Link
+        to="/channels"
+        replace
+        className={cx('text-left', 'list-group-item', { active: !active })}
+        role="button"
+        tabIndex={0}
+        onKeyDown={() => null}
+      >
+        Welcome
+      </Link>
       {channels.map(channel => (
         <Link
           to={`/channels/${channel.id}`}
