@@ -4,10 +4,11 @@ import { ACTION_AUTHENTICATE } from './action-types';
 import { ACTION_STATUS_SUCCESS } from './action-statuses';
 
 let initialState = null;
-const authToken = localStorage.getItem('authToken');
-const [, encoded] = authToken.split('.');
 
 try {
+  const authToken = localStorage.getItem('authToken');
+  const [, encoded] = authToken.split('.');
+
   const { username } = JSON.parse(atob(encoded));
   initialState = Immutable.fromJS({ username });
 } catch (e) {

@@ -65,35 +65,12 @@ async function list(ctx) {
   let anchorISO;
 
   if (anchor) {
-    anchorISO = moment.unix(parseInt(anchor, 10)).utc(); // normalize to UTC
+    anchorISO = moment(parseInt(anchor, 10)).utc(); // normalize to UTC
   }
 
   try {
     dbg(`Listing messages for channel #${channelId} onwards from ${anchorISO || 'latest'}`);
-    let chunk;
-
-    if (!anchorISO) {
-      const channel = await db.Channel.findById(channelId).lean().exec();
-      if (!channel) {
-        ctx.throw(404, 'Channel not found');
-      }
-      chunk = await db.ChannelChunk.findById(channel.activeChunk).lean().exec();
-    } else {
-      chunk = await db.ChannelChunk.findOne({
-        channelId,
-        createdAt: anchorISO.clone().startOf('day').toDate(), // Round down to beginning of day (UTC)
-      }).lean().exec();
-    }
-
-    if (!chunk) {
-      ctx.throw(404, 'Chunk not found');
-    } else {
-      dbg(`Channel chunk #${chunk._id} contains ${(chunk.messages || []).length} messages`);
-    }
-
-    const anchorISOTimestamp = anchorISO.toDate().getTime();
-    const messages = (chunk.messages || [])
-      .filter(({ createdAt }) => !anchorISO || createdAt.getTime() > anchorISOTimestamp);
+    const messages = await db.queryMessagesByAnchor(channelId, anchorISO);
 
     ctx.body = {
       ok: true,

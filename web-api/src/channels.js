@@ -1,6 +1,7 @@
 import Router from 'koa-router';
 import debug from 'debug';
 // import _get from 'lodash.get';
+import moment from 'moment';
 import * as db from './db';
 import { format } from './utils';
 
@@ -22,17 +23,18 @@ async function list(ctx) {
 
 async function view(ctx) {
   const { channelId } = ctx.params;
-  const { anchor = '0' } = ctx.query;
+  const { anchor } = ctx.query;
+
+  let anchorISO;
+  if (anchor) {
+    anchorISO = moment(parseInt(anchor, 10)).utc(); // normalize to UTC
+  }
 
   try {
     dbg(`Viewing one channel #${channelId}`);
     const channel = await db.Channel.findById(channelId).lean().exec();
-    const chunk = await db.ChannelChunk.findOne({ channelId }).lean().exec();
-
-    const anchorISO = new Date(parseInt(anchor, 10)).toISOString();
-    dbg(`Filtering messages by ${anchorISO}`);
-    const messages = ((chunk ? chunk.messages : []) || [])
-      .filter(({ createdAt }) => createdAt.toISOString() > anchorISO);
+    dbg(`Filtering messages by ${anchorISO || 'latest'}`);
+    const messages = await db.queryMessagesByAnchor(channelId, anchorISO);
 
     ctx.body = {
       ok: true,

@@ -69,7 +69,7 @@ export async function loadChannels() {
 }
 
 export async function loadChannel(id, { anchor }) {
-  const body = await fetch(`${baseURL}/channels/${id}?anchor=${anchor || 0}`, {
+  const body = await fetch(`${baseURL}/channels/${id}?anchor=${anchor || ''}`, {
     headers: createHeaders(),
     cache: 'no-cache',
   }).then(res => res.json());

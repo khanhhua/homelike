@@ -152,3 +152,35 @@ export async function allocateChunk(channelId) {
 
   return activeChunk._id;
 }
+
+export async function queryMessagesByAnchor(channelId, anchorISO = null) {
+  const error404 = new Error('Channel/Chunk not found');
+  error404.status = 404; // eslint-disable-line
+
+  let chunk;
+
+  if (!anchorISO) {
+    const channel = await Channel.findById(channelId).lean().exec();
+    if (!channel) {
+      throw error404;
+    }
+    chunk = await ChannelChunk.findById(channel.activeChunk).lean().exec();
+  } else {
+    chunk = await ChannelChunk.findOne({
+      channelId,
+      createdAt: anchorISO.clone().startOf('day').toDate(), // Round down to beginning of day (UTC)
+    }).lean().exec();
+  }
+
+  if (!chunk) {
+    throw error404;
+  } else {
+    dbg(`Channel chunk #${chunk._id} contains ${(chunk.messages || []).length} messages`);
+  }
+
+  const anchorISOTimestamp = anchorISO && anchorISO.toDate().getTime();
+  const messages = (chunk.messages || [])
+    .filter(({ createdAt }) => !anchorISOTimestamp || createdAt.getTime() > anchorISOTimestamp);
+
+  return messages;
+}
