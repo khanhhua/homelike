@@ -89,7 +89,7 @@ class ChatPage extends Component {
       <div className="chat-page">
         <Grid>
           <Row>
-            <Col md={3}>
+            <Col xs={12} sm={3} md={4} className="sidebar">
               <>
                 {!!profile
                 && (
@@ -102,7 +102,7 @@ class ChatPage extends Component {
                 <ChatList channels={channels} active={active && active.channel} dispatch={dispatch} />
               </>
             </Col>
-            <Col md={7}>
+            <Col xs={12} sm={9} md={8}>
               {!active
               && (
                 <Welcome />
@@ -135,8 +135,7 @@ class ChatPage extends Component {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            Elit est explicabo ipsum eaque dolorem blanditiis doloribus sed id
-            ipsam, beatae, rem fuga id earum? Inventore et facilis obcaecati.
+            Are you sure?
           </Modal.Body>
           <Modal.Footer>
             <Button bsStyle="primary" onClick={this.handleConfirm}>Yes</Button>

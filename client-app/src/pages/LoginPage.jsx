@@ -30,7 +30,7 @@ class LoginPage extends Component {
       <div className={styles['login-page']}>
         <Grid>
           <Row className="justify-content-md-center">
-            <Col xs={12} md={5}>
+            <Col xs={12} md={5} mdPush={3}>
               <h2>Welcome to Slack-alike</h2>
               <p>Where we developers come, talk and slack-alike</p>
 
