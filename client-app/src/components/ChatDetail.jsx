@@ -9,30 +9,37 @@ import TalkBox from './TalkBox';
 import * as actions from '../store/actions';
 import ChatterBadge from './ChatterBadge';
 
+import { userLookup } from '../lookups';
 import styles from './chat-detail.module.scss';
 
 const ChatDetail = ({ channel, messages }) => (
-  <div className={styles['chat-detail']}>
-    {!!channel
-    && (
-      <>
-        <div className={styles['chat-meta']}>
-          <div className={styles['chat-meta-chatters']}>
-            {channel.chatters.map(chatter => <ChatterBadge key={chatter.id} {...chatter} />)}
-          </div>
-          <p className="text-muted">
-            {`(${channel.chatters.length} members)`}
-          </p>
-        </div>
-        <MessageList messages={messages} />
-        <AppContext.Consumer>
-          {({ dispatch }) => (
+  <AppContext.Consumer>
+    {({ dispatch, users }) => (
+      <div className={styles['chat-detail']}>
+        {!!channel
+        && (
+          <>
+            <div className={styles['chat-meta']}>
+              <div className={styles['chat-meta-chatters']}>
+                {channel.chatters.map(chatter => (
+                  <ChatterBadge
+                    key={chatter.id}
+                    displayName={userLookup(users, chatter.id, 'displayName')}
+                    avatarUrl={userLookup(users, chatter.id, 'avatarUrl')}
+                  />
+                ))}
+              </div>
+              <p className="text-muted">
+                {`(${channel.chatters.length} members)`}
+              </p>
+            </div>
+            <MessageList messages={messages} />
             <TalkBox className={styles['talk-box']} onSend={text => dispatch(actions.sendMessage(channel.id, text))} />
-          )}
-        </AppContext.Consumer>
-      </>
+          </>
+        )}
+      </div>
     )}
-  </div>
+  </AppContext.Consumer>
 );
 
 ChatDetail.propTypes = {

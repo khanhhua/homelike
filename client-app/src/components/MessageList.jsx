@@ -5,7 +5,7 @@ import AppContext from '../AppContext';
 import Message from './Message';
 import EditableMessage from './EditableMessage';
 
-const userLookup = (users, id, ...propPath) => users.getIn([id, ...propPath]);
+import { userLookup } from '../lookups';
 
 const MessageList = ({ messages }) => (
   <AppContext.Consumer>

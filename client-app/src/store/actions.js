@@ -72,7 +72,7 @@ export const loadChannels = () => async (dispatch) => {
   }
 };
 
-export const selectChannel = channelId => async (dispatch) => {
+export const selectChannel = channelId => async (dispatch, getState) => {
   dispatch(action(ACTION_SELECT_CHANNEL, ACTION_STATUS_PENDING, { id: channelId }));
 
   let updatedChannel;
@@ -84,7 +84,7 @@ export const selectChannel = channelId => async (dispatch) => {
     anchor = getChannelAnchor(updatedChannel);
     getStreamer().subscribe(channelId, { anchor },
       {
-        receiveCallback(err, messages) {
+        async receiveCallback(err, messages) {
           if (err) {
             return;
           }
@@ -92,6 +92,22 @@ export const selectChannel = channelId => async (dispatch) => {
             id: channelId,
             messages,
           }));
+
+          const state = getState();
+          const existingUsers = state.get('users');
+
+          const newUserIds = messages.reduce((userIds, { sender }) => {
+            if (!existingUsers.has(sender)) {
+              return userIds.concat(sender);
+            }
+
+            return userIds;
+          }, []);
+
+          if (newUserIds.length) {
+            const newUsers = await api.findUsers(newUserIds);
+            dispatch(action(ACTION_FIND_USERS, ACTION_STATUS_SUCCESS, newUsers));
+          }
         },
         editCallback(err, messages) {
           if (err) {
