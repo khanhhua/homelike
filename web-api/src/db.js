@@ -1,10 +1,13 @@
-/* eslint */
+/* eslint-disable no-underscore-dangle */
 
 import debug from 'debug';
 import mongoose, { Schema } from 'mongoose';
+import moment from 'moment';
 
 const dbg = debug('web-api:db');
 const { DATABASE_URL } = process.env;
+
+const CHUNK_EXPIRE_IN = 1; // 1 day
 
 const schemaOptions = {
   toObject: {
@@ -25,7 +28,8 @@ const UserSchema = new Schema(
     phone: String,
     timezone: String,
     avatarUrl: String,
-  }, schemaOptions);
+  }, schemaOptions,
+);
 UserSchema.virtual('id').get(function () {
   return this._id.toHexString(); // eslint-disable-line
 });
@@ -39,7 +43,8 @@ const ChannelSchema = new Schema(
     chunkExpiry: Date,
     createdAt: Date,
     lastMsgAt: Date,
-  }, schemaOptions);
+  }, schemaOptions,
+);
 ChannelSchema.virtual('id').get(function () {
   return this._id.toHexString(); // eslint-disable-line
 });
@@ -79,9 +84,9 @@ export async function initDb() {
   if (false) {
     dbg('Executing query scripts...');
     try {
-        await User.create({ username: 'user1', email: 'user1@mailinator.com', channels: [] });
-        await Channel.create({ name: 'general' });
-        await Channel.create({ name: 'chatbot' });
+      await User.create({ username: 'user1', email: 'user1@mailinator.com', channels: [] });
+      await Channel.create({ name: 'general' });
+      await Channel.create({ name: 'chatbot' });
     } catch (e) {
       console.log(e.stackTrace);
     }
@@ -91,4 +96,59 @@ export async function initDb() {
 
 export function objectId() {
   return mongoose.Types.ObjectId();
+}
+
+export async function allocateChunk(channelId) {
+  const today = moment().utc().startOf('day');
+  let newChunkExpiry = null;
+  dbg('Allocating channel chunk for today', today.toISOString());
+
+  const channel = await Channel.findById(channelId).select('activeChunk chunkExpiry').lean().exec();
+  let activeChunk = await ChannelChunk.findById(channel.activeChunk).select('id').lean().exec();
+
+  if (!activeChunk) {
+    dbg(`No chunk for channel #${channelId}. Making one afresh...`);
+  } else if (moment(channel.chunkExpiry).isSameOrBefore(today, 'day')) {
+    dbg(`Existing for channel #${channelId} has expired. Making one afresh...`);
+  }
+
+  if (!activeChunk || (moment(channel.chunkExpiry).isSameOrBefore(today, 'day'))) {
+    // NOTICE: Addressing the concurrent update issue
+    const result = await ChannelChunk.updateOne(
+      {
+        channelId,
+        createdAt: today,
+      }, {}, { upsert: true },
+    ).exec();
+
+    if (result.ok && result.upserted && result.upserted.length) {
+      activeChunk = { _id: result.upserted[0]._id };
+    } else if (result.ok) {
+      dbg('Another process had created channel chunk');
+      activeChunk = await ChannelChunk.findOne(
+        {
+          channelId,
+          createdAt: today,
+        },
+      ).select('id').lean().exec();
+    }
+
+    newChunkExpiry = today.add(CHUNK_EXPIRE_IN, 'day');
+  }
+
+  if (newChunkExpiry) {
+    dbg(`Updating active chunk #${activeChunk._id} and chunkExpiry for channel #${channelId}...`);
+    await Channel.findByIdAndUpdate(channelId,
+      {
+        $set:
+          {
+            activeChunk: activeChunk._id,
+            chunkExpiry: newChunkExpiry,
+          },
+      });
+  } else {
+    dbg(`Reusing existing chunk #${activeChunk._id} for channel #${channelId}...`);
+  }
+
+  return activeChunk._id;
 }

@@ -10,7 +10,6 @@ import { format } from './utils';
 const dbg = debug('web-api:messages');
 
 const SERVER_TIMEZONE = 'Singapore'; // eslint-disable-line
-const CHUNK_EXPIRE_IN = 1; // 1 day
 
 async function broadcastChatMessage(type, channelId, message) {
   let method = null;
@@ -59,76 +58,42 @@ async function broadcastChatMessage(type, channelId, message) {
  * @param channelId {string}
  * @returns {Promise<string>}
  */
-async function allocateChunk(channelId) {
-  const today = moment().startOf('day');
-  let newChunkExpiry = null;
-  dbg('Allocating channel chunk for today', today.toISOString());
-
-  const channel = await db.Channel.findById(channelId).select('activeChunk chunkExpiry').lean().exec();
-  let activeChunk = await db.ChannelChunk.findById(channel.activeChunk).select('id').lean().exec();
-
-  if (!activeChunk) {
-    dbg(`No chunk for channel #${channelId}. Making one afresh...`);
-  } else if (moment(channel.chunkExpiry).isSameOrBefore(today, 'day')) {
-    dbg(`Existing for channel #${channelId} has expired. Making one afresh...`);
-  }
-
-  if (!activeChunk || (moment(channel.chunkExpiry).isSameOrBefore(today, 'day'))) {
-    // NOTICE: Addressing the concurrent update issue
-    const result = await db.ChannelChunk.updateOne(
-      {
-        channelId,
-        createdAt: today,
-      }, {}, { upsert: true },
-    ).exec();
-
-    if (result.ok && result.upserted && result.upserted.length) {
-      activeChunk = { _id: result.upserted[0]._id };
-    } else if (result.ok) {
-      dbg('Another process had created channel chunk');
-      activeChunk = await db.ChannelChunk.findOne(
-        {
-          channelId,
-          createdAt: today,
-        },
-      ).select('id').lean().exec();
-    }
-
-    newChunkExpiry = today.add(CHUNK_EXPIRE_IN, 'day');
-  }
-
-  if (newChunkExpiry) {
-    dbg(`Updating active chunk #${activeChunk._id} and chunkExpiry for channel #${channelId}...`);
-    await db.Channel.findByIdAndUpdate(channelId,
-      {
-        $set:
-          {
-            activeChunk: activeChunk._id,
-            chunkExpiry: newChunkExpiry,
-          },
-      });
-  } else {
-    dbg(`Reusing existing chunk #${activeChunk._id} for channel #${channelId}...`);
-  }
-
-  return activeChunk._id;
-}
-
 async function list(ctx) {
   const { channelId } = ctx.params;
-  const { anchor = '0' } = ctx.query;
+  const { anchor } = ctx.query; // anchor is timestamp to start query from
+
+  let anchorISO;
+
+  if (anchor) {
+    anchorISO = moment.unix(parseInt(anchor, 10)).utc(); // normalize to UTC
+  }
 
   try {
-    dbg(`Listing messages for channel #${channelId}`);
-    const anchorISO = new Date(parseInt(anchor, 10)).toISOString();
-    dbg(`Filtering messages by ${anchorISO}`);
+    dbg(`Listing messages for channel #${channelId} onwards from ${anchorISO || 'latest'}`);
+    let chunk;
 
-    const chunk = await db.ChannelChunk.findOne({ channelId }).lean().exec();
-    if (!chunk) {
-      ctx.throw(404, 'Channel not found');
+    if (!anchorISO) {
+      const channel = await db.Channel.findById(channelId).lean().exec();
+      if (!channel) {
+        ctx.throw(404, 'Channel not found');
+      }
+      chunk = await db.ChannelChunk.findById(channel.activeChunk).lean().exec();
+    } else {
+      chunk = await db.ChannelChunk.findOne({
+        channelId,
+        createdAt: anchorISO.clone().startOf('day').toDate(), // Round down to beginning of day (UTC)
+      }).lean().exec();
     }
 
-    const messages = (chunk.messages || []).filter(({ createdAt }) => createdAt.toISOString() > anchorISO);
+    if (!chunk) {
+      ctx.throw(404, 'Chunk not found');
+    } else {
+      dbg(`Channel chunk #${chunk._id} contains ${(chunk.messages || []).length} messages`);
+    }
+
+    const anchorISOTimestamp = anchorISO.toDate().getTime();
+    const messages = (chunk.messages || [])
+      .filter(({ createdAt }) => !anchorISO || createdAt.getTime() > anchorISOTimestamp);
 
     ctx.body = {
       ok: true,
@@ -254,7 +219,7 @@ async function create(ctx) {
     dbg(`Persisting new message for channel #${channelId}`);
 
     await db.Channel.findByIdAndUpdate(channelId, { $addToSet: { chatters: user.sub } });
-    const channelChunkId = await allocateChunk(channelId);
+    const channelChunkId = await db.allocateChunk(channelId);
 
     await new Promise(async (resolve, reject) => {
       dbg(`Pushing new message to chunk #${channelChunkId}...`);
