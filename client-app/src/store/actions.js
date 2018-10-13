@@ -1,6 +1,5 @@
 import {
   push,
-  replace,
 } from 'react-router-redux';
 
 import {
@@ -36,7 +35,7 @@ export const register = (email, password) => async (dispatch) => {
   try {
     const result = await api.register(email, password);
     if (result === true) {
-      dispatch(replace('/'));
+      window.location.reload();
       return;
     }
 
