@@ -1,5 +1,5 @@
 import Immutable from 'immutable';
-import { ACTION_STATUS_SUCESS } from './action-statuses';
+import { ACTION_STATUS_SUCCESS } from './action-statuses';
 import { ACTION_LOAD_PROFILE, ACTION_SAVE_PROFILE } from './action-types';
 
 const initialState = Immutable.Map({
@@ -11,7 +11,7 @@ const initialState = Immutable.Map({
 });
 
 export default (state = initialState, action) => {
-  if (action.status !== ACTION_STATUS_SUCESS) {
+  if (action.status !== ACTION_STATUS_SUCCESS) {
     return state;
   }
 

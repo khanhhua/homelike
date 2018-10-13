@@ -2,10 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const Message = ({ message }) => (
-  <div className="message media">
-    <img className="mr-3" src="https://picsum.photos/64/64" alt="" />
+  <div className="media">
+    <div className="media-left">
+      <img
+        alt="64x64"
+        className="media-object thumbnail"
+        src="https://picsum.photos/64/64"
+        data-holder-rendered="true"
+        style={{ width: 64, height: 64 }}
+      />
+    </div>
     <div className="media-body">
-      <h5 className="mt-0">{message.sender}</h5>
+      <h5 className="media-heading">{message.sender}</h5>
       <p>{message.body}</p>
     </div>
   </div>);

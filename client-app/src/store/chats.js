@@ -5,12 +5,14 @@ import {
   ACTION_EDIT_MESSAGES,
   ACTION_RECEIVE_MESSAGES,
   ACTION_REMOVE_MESSAGES,
-  ACTION_SELECT_CHANNEL
+  ACTION_SELECT_CHANNEL,
+  ACTION_UPDATE_MESSAGE,
+  ACTION_REMOVE_MESSAGE,
 } from './action-types';
-import { ACTION_STATUS_SUCESS } from './action-statuses';
+import { ACTION_STATUS_SUCCESS } from './action-statuses';
 
 export default (state = Immutable.Map(), action) => {
-  if (action.status !== ACTION_STATUS_SUCESS) {
+  if (action.status !== ACTION_STATUS_SUCCESS) {
     return state;
   }
 
@@ -59,6 +61,24 @@ export default (state = Immutable.Map(), action) => {
           return chats.set(index, chats.get(index).set('removed', true));
         },
         existingChats);
+      });
+    }
+    case ACTION_UPDATE_MESSAGE: {
+      const { id: channelId, messages = [] } = action.payload;
+      return state.updateIn([channelId], (existingChats) => {
+        return messages.reduce((chats, message) =>
+            chats.set(chats.findIndex(item => item.get('id') === message.id), Immutable.fromJS(message)),
+          existingChats)
+      });
+    }
+    case ACTION_REMOVE_MESSAGE: {
+      const { id: channelId, messages = [] } = action.payload;
+      return state.updateIn([channelId], (existingChats) => {
+        return messages.reduce((chats, message) => {
+            const index = chats.findIndex(item => item.get('id') === message.id);
+            return chats.set(index, chats.get(index).set('removed', true));
+          },
+          existingChats);
       });
     }
     default:

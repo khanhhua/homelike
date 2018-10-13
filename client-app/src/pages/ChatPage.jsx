@@ -1,6 +1,9 @@
 import Immutable from 'immutable';
 import React, { Component } from 'react';
-import { Col, Grid, Row } from 'react-bootstrap';
+import {
+  Button,
+  Col, Grid, Modal, Row,
+} from 'react-bootstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
@@ -10,6 +13,8 @@ import ChatList from '../components/ChatList';
 import ChatDetail from '../components/ChatDetail';
 import { loadChannels, loadProfile } from '../store/actions';
 import ChatterBadge from '../components/ChatterBadge';
+
+let modalPromise;
 
 class ChatPage extends Component {
   static propTypes = {
@@ -24,12 +29,41 @@ class ChatPage extends Component {
 
     props.dispatch(loadChannels());
     props.dispatch(loadProfile());
+
+    this.state = {
+      isModalVisible: false,
+      modalDelegate: {
+        showModal: () => {
+          modalPromise = new Promise((resolve, reject) => {
+            this.modalResolve = resolve;
+            this.modalReject = reject;
+          });
+          this.setState({ isModalVisible: true });
+
+          return modalPromise;
+        },
+      },
+    };
   }
+
+  handleHide = () => {
+    this.modalReject();
+    this.setState({ isModalVisible: false });
+    modalPromise = null;
+  };
+
+  handleConfirm = () => {
+    this.modalResolve();
+    this.setState({ isModalVisible: false });
+    modalPromise = null;
+  };
 
   render() {
     const {
       dispatch, profile, channels, active,
     } = this.props;
+
+    const { isModalVisible, modalDelegate } = this.state;
 
     return (
       <div className="chat-page">
@@ -48,8 +82,11 @@ class ChatPage extends Component {
                 <ChatList channels={channels} active={active.channel} dispatch={dispatch} />
               </>
             </Col>
-            <Col md={9}>
-              <AppContext.Provider value={{ dispatch }}>
+            <Col md={7}>
+              <AppContext.Provider value={{
+                dispatch, modalDelegate, profile, active,
+              }}
+              >
                 <ChatDetail
                   channel={active.channel || null}
                   messages={active.messages || []}
@@ -58,6 +95,27 @@ class ChatPage extends Component {
             </Col>
           </Row>
         </Grid>
+
+        <Modal
+          show={isModalVisible}
+          onHide={this.handleHide}
+          container={this}
+          aria-labelledby="contained-modal-title"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title">
+              Confirm
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Elit est explicabo ipsum eaque dolorem blanditiis doloribus sed id
+            ipsam, beatae, rem fuga id earum? Inventore et facilis obcaecati.
+          </Modal.Body>
+          <Modal.Footer>
+            <Button bsStyle="primary" onClick={this.handleConfirm}>Yes</Button>
+            <Button onClick={this.handleHide}>No</Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     );
   }

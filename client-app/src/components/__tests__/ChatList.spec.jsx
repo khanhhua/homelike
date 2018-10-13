@@ -26,7 +26,7 @@ describe('ChatList', () => {
     const dispatch = (/* AsyncFunc */) => {
       selectChannel({
           type: actionTypes.ACTION_SELECT_CHANNEL,
-          status: actionStatus.ACTION_STATUS_SUCESS,
+          status: actionStatus.ACTION_STATUS_SUCCESS,
           payload: channel});
     }
     const wrapped = shallow(<ChatList channels={[channel]} dispatch={dispatch} />);
@@ -36,7 +36,7 @@ describe('ChatList', () => {
     expect(selectChannel).toHaveBeenCalled();
     expect(selectChannel.mock.calls[0][0]).toEqual({
       type: actionTypes.ACTION_SELECT_CHANNEL,
-      status: actionStatus.ACTION_STATUS_SUCESS,
+      status: actionStatus.ACTION_STATUS_SUCCESS,
       payload: channel});
   });
 });

@@ -101,6 +101,38 @@ export async function sendMessage(channelId, message) {
   return body;
 }
 
+export async function updateMessage(channelId, messageId, message) {
+  const body = await fetch(`${baseURL}/channels/${channelId}/messages/${messageId}`, {
+    method: 'PUT',
+    headers: createHeaders(),
+    cache: 'no-cache',
+    body: JSON.stringify({
+      text: message,
+    }),
+  }).then(res => res.json());
+
+  if (body.ok) {
+    return body.message;
+  }
+
+  return body;
+}
+
+export async function removeMessage(channelId, messageId) {
+  const body = await fetch(`${baseURL}/channels/${channelId}/messages/${messageId}`, {
+    method: 'DELETE',
+    headers: createHeaders(),
+    cache: 'no-cache',
+  }).then(res => res.json());
+
+  if (body.ok) {
+    return true;
+  }
+
+  return body;
+}
+
+
 export async function loadProfile() {
   const body = await fetch(`${baseURL}/profile`, {
     method: 'GET',

@@ -1,11 +1,19 @@
 .talk-box {
+  display: flex;
+  align-content: stretch;
+
   .form-group {
-    flex-grow: 1;
+    flex: 1 0 auto;
   }
 
   .form-group {
     textarea.form-control {
       width: 100%;
     }
+  }
+
+  .button-group {
+    flex: 0 0 120px;
+    margin-left: 0.2em;
   }
 }

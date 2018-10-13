@@ -3,7 +3,7 @@
 import * as actions from '../actions';
 import createStore from '..';
 import { ACTION_AUTHENTICATE, ACTION_LOAD_CHANNELS, ACTION_SELECT_CHANNEL } from '../action-types';
-import { ACTION_STATUS_PENDING, ACTION_STATUS_SUCESS } from '../action-statuses';
+import { ACTION_STATUS_PENDING, ACTION_STATUS_SUCCESS } from '../action-statuses';
 import getStreamer from '../streamer';
 
 jest.mock('../streamer', () => (
@@ -43,7 +43,7 @@ describe('authenticate', () => {
       expect(spy).toHaveBeenCalled();
       expect(spy.mock.calls).toHaveLength(2);
       expect(spy.mock.calls[0][0]).toEqual(actions.action(ACTION_AUTHENTICATE, ACTION_STATUS_PENDING, undefined));
-      expect(spy.mock.calls[1][0]).toEqual(actions.action(ACTION_AUTHENTICATE, ACTION_STATUS_SUCESS, {
+      expect(spy.mock.calls[1][0]).toEqual(actions.action(ACTION_AUTHENTICATE, ACTION_STATUS_SUCCESS, {
         authToken,
         username,
         id: userId,
@@ -81,7 +81,7 @@ describe('loadChannels', () => {
       expect(spy).toHaveBeenCalled();
       expect(spy.mock.calls).toHaveLength(2);
       expect(spy.mock.calls[0][0]).toEqual(actions.action(ACTION_LOAD_CHANNELS, ACTION_STATUS_PENDING, undefined));
-      expect(spy.mock.calls[1][0]).toEqual(actions.action(ACTION_LOAD_CHANNELS, ACTION_STATUS_SUCESS, channels));
+      expect(spy.mock.calls[1][0]).toEqual(actions.action(ACTION_LOAD_CHANNELS, ACTION_STATUS_SUCCESS, channels));
 
       done();
     });
@@ -108,7 +108,7 @@ describe('selectChannel', () => {
       expect(spy).toHaveBeenCalled();
       expect(spy.mock.calls).toHaveLength(2);
       expect(spy.mock.calls[0][0]).toEqual(actions.action(ACTION_SELECT_CHANNEL, ACTION_STATUS_PENDING, channel));
-      expect(spy.mock.calls[1][0]).toEqual(actions.action(ACTION_SELECT_CHANNEL, ACTION_STATUS_SUCESS, channel));
+      expect(spy.mock.calls[1][0]).toEqual(actions.action(ACTION_SELECT_CHANNEL, ACTION_STATUS_SUCCESS, channel));
       expect(getStreamer).toHaveBeenCalled();
 
       done();

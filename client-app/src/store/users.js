@@ -1,10 +1,10 @@
 import Immutable from 'immutable';
 
 import { ACTION_FIND_USERS } from './action-types';
-import { ACTION_STATUS_SUCESS } from './action-statuses';
+import { ACTION_STATUS_SUCCESS } from './action-statuses';
 
 export default (state = Immutable.Map(), action) => {
-  if (action.status !== ACTION_STATUS_SUCESS) {
+  if (action.status !== ACTION_STATUS_SUCCESS) {
     return state;
   }
 

@@ -9,3 +9,5 @@ export const ACTION_RECEIVE_MESSAGES = 'receive-messages';
 export const ACTION_EDIT_MESSAGES = 'edit-messages';
 export const ACTION_REMOVE_MESSAGES = 'remove-messages';
 export const ACTION_SEND_TO_CHANNEL = 'send-to-channel';
+export const ACTION_UPDATE_MESSAGE = 'update-message';
+export const ACTION_REMOVE_MESSAGE = 'remove-message';

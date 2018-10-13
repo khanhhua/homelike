@@ -112,6 +112,7 @@ async function edit(ctx) {
 
       ctx.body = {
         ok: true,
+        message,
       };
     } else {
       ctx.body = {

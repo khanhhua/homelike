@@ -9,14 +9,14 @@ const ChatterBadge = ({ displayName, avatarUrl, className }) => (
     {!!avatarUrl
     && (
     <span
-      className={cx('rounded-circle', styles.image)}
+      className={cx('img-circle', styles.image)}
       style={{ backgroundImage: `url(${avatarUrl})` }}
     />
     )}
     {!avatarUrl
     && (
     <span
-      className={cx('rounded-circle', styles.image, styles['stylish-text'])}
+      className={cx('img-circle', styles.image, styles['stylish-text'])}
     >
       {displayName.charAt(0)}
     </span>

@@ -1,14 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import AppContext from '../AppContext';
 import Message from './Message';
+import EditableMessage from './EditableMessage';
 
 const MessageList = ({ messages }) => (
-  <div className="message-list">
-    {messages.map(message => (
-      <Message key={`message-${message.id}`} message={message} />
-    ))}
-  </div>
+  <AppContext.Consumer>
+    {({ profile }) => (
+      <div className="message-list">
+        {messages.map(message => (
+          profile.id === message.sender
+            ? <EditableMessage key={`message-${message.id}`} message={message} />
+            : <Message key={`message-${message.id}`} message={message} />
+        ))}
+      </div>
+    )}
+  </AppContext.Consumer>
 );
 
 MessageList.propTypes = {

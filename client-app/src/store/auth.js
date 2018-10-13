@@ -1,7 +1,7 @@
 import Immutable from 'immutable';
 
 import { ACTION_AUTHENTICATE } from './action-types';
-import { ACTION_STATUS_SUCESS } from './action-statuses';
+import { ACTION_STATUS_SUCCESS } from './action-statuses';
 
 let initialState = null;
 const authToken = localStorage.getItem('authToken');
@@ -15,7 +15,7 @@ try {
 }
 
 export default (state = initialState, action) => {
-  if (action.status !== ACTION_STATUS_SUCESS) {
+  if (action.status !== ACTION_STATUS_SUCCESS) {
     return state;
   }
 
