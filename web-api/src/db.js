@@ -36,6 +36,7 @@ const ChannelSchema = new Schema(
     name: String,
     chatters: [Schema.Types.ObjectId],
     activeChunk: Schema.Types.ObjectId, // Pointer to the ChannelChunkSchema chunk
+    chunkExpiry: Date,
     createdAt: Date,
     lastMsgAt: Date,
   }, schemaOptions);
@@ -45,7 +46,7 @@ ChannelSchema.virtual('id').get(function () {
 
 const ChannelChunkSchema = new Schema({
   channelId: Schema.Types.ObjectId,
-  lastMsgAt: Date,
+  createdAt: Date,
   messages: [
     {
       id: String,

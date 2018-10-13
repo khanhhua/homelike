@@ -1,12 +1,16 @@
 /* eslint no-underscore-dangle: "off" */
 import debug from 'debug';
 
+import moment from 'moment';
 import Router from 'koa-router';
 import { default as rp } from 'request-promise';
 import * as db from './db';
 import { format } from './utils';
 
 const dbg = debug('web-api:messages');
+
+const SERVER_TIMEZONE = 'Singapore'; // eslint-disable-line
+const CHUNK_EXPIRE_IN = 1; // 1 day
 
 async function broadcastChatMessage(type, channelId, message) {
   let method = null;
@@ -47,6 +51,67 @@ async function broadcastChatMessage(type, channelId, message) {
     dbg(`Could not broadcast message to channel #${channelId} to all nodes.\n`
       + 'For reliable delivery, use AMQP (RabbitMQ, ActiveMQ...)');
   }
+}
+
+/**
+ * Allocate a new channel chunk for storing new messages
+ *
+ * @param channelId {string}
+ * @returns {Promise<string>}
+ */
+async function allocateChunk(channelId) {
+  const today = moment().startOf('day');
+  let newChunkExpiry = null;
+  dbg('Allocating channel chunk for today', today.toISOString());
+
+  const channel = await db.Channel.findById(channelId).select('activeChunk chunkExpiry').lean().exec();
+  let activeChunk = await db.ChannelChunk.findById(channel.activeChunk).select('id').lean().exec();
+
+  if (!activeChunk) {
+    dbg(`No chunk for channel #${channelId}. Making one afresh...`);
+  } else if (moment(channel.chunkExpiry).isSameOrBefore(today, 'day')) {
+    dbg(`Existing for channel #${channelId} has expired. Making one afresh...`);
+  }
+
+  if (!activeChunk || (moment(channel.chunkExpiry).isSameOrBefore(today, 'day'))) {
+    // NOTICE: Addressing the concurrent update issue
+    const result = await db.ChannelChunk.updateOne(
+      {
+        channelId,
+        createdAt: today,
+      }, {}, { upsert: true },
+    ).exec();
+
+    if (result.ok && result.upserted && result.upserted.length) {
+      activeChunk = { _id: result.upserted[0]._id };
+    } else if (result.ok) {
+      dbg('Another process had created channel chunk');
+      activeChunk = await db.ChannelChunk.findOne(
+        {
+          channelId,
+          createdAt: today,
+        },
+      ).select('id').lean().exec();
+    }
+
+    newChunkExpiry = today.add(CHUNK_EXPIRE_IN, 'day');
+  }
+
+  if (newChunkExpiry) {
+    dbg(`Updating active chunk #${activeChunk._id} and chunkExpiry for channel #${channelId}...`);
+    await db.Channel.findByIdAndUpdate(channelId,
+      {
+        $set:
+          {
+            activeChunk: activeChunk._id,
+            chunkExpiry: newChunkExpiry,
+          },
+      });
+  } else {
+    dbg(`Reusing existing chunk #${activeChunk._id} for channel #${channelId}...`);
+  }
+
+  return activeChunk._id;
 }
 
 async function list(ctx) {
@@ -189,10 +254,11 @@ async function create(ctx) {
     dbg(`Persisting new message for channel #${channelId}`);
 
     await db.Channel.findByIdAndUpdate(channelId, { $addToSet: { chatters: user.sub } });
-    await new Promise((resolve, reject) => {
-      dbg('Find and update...');
+    const channelChunkId = await allocateChunk(channelId);
 
-      db.ChannelChunk.updateOne({ channelId }, { $push: { messages: message } }, { upsert: true }, (err, stats) => {
+    await new Promise(async (resolve, reject) => {
+      dbg(`Pushing new message to chunk #${channelChunkId}...`);
+      db.ChannelChunk.updateOne({ _id: channelChunkId }, { $push: { messages: message } }, (err, stats) => {
         if (err) {
           return reject(err);
         }
