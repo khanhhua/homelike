@@ -17,6 +17,7 @@ const Message = ({ displayName, avatarUrl, message }) => (
           {displayName}
         </Link>
       </h5>
+      <div className="text-muted">{message.createdAt}</div>
       <p>{message.body}</p>
     </div>
   </div>);

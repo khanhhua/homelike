@@ -51,6 +51,7 @@ Promise.all([
           tags: [
             'urlprefix-/api/v1/auth',
             'urlprefix-/api/v1/profile',
+            'urlprefix-/api/v1/users',
             'urlprefix-/api/v1/channels',
             'urlprefix-/api/v1/messages'],
           address: ADVERTISED_HOSTNAME,

@@ -38,18 +38,25 @@ async function view(ctx) {
 /**
  *
  * @param ctx
- * @returns {Promise<ProfileResponse>}
  */
 async function list(ctx) {
   const { ids } = ctx.query;
 
   try {
-    dbg(`Querying user profiles: ${ids}`);
-
     const criteria = {};
-    if (ids) {
-      criteria._id = { $in: ids }; // eslint-disable-line
+
+    if (!ids) {
+      ctx.body = {
+        ok: true,
+        users: [],
+      };
+
+      return;
     }
+
+    dbg(`Querying user profiles: ${ids}`);
+    criteria._id = { $in: ids }; // eslint-disable-line
+
     const users = await User.find(criteria).limit(100)
       .select(PROFILE_PROJECTION).lean()
       .exec();

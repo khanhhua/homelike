@@ -1,6 +1,6 @@
 import Immutable from 'immutable';
 import { ACTION_STATUS_SUCCESS } from './action-statuses';
-import { ACTION_LOAD_CHANNELS, ACTION_SELECT_CHANNEL } from './action-types';
+import { ACTION_LOAD_CHANNELS, ACTION_RECEIVE_MESSAGES, ACTION_SELECT_CHANNEL } from './action-types';
 
 export default (state = Immutable.Map(), action) => {
   if (action.status !== ACTION_STATUS_SUCCESS) {
@@ -15,6 +15,15 @@ export default (state = Immutable.Map(), action) => {
     case ACTION_SELECT_CHANNEL: {
       const channel = action.payload;
       return state.set(channel.id, Immutable.fromJS(channel));
+    }
+    case ACTION_RECEIVE_MESSAGES: {
+      const { id: channelId, messages = [] } = action.payload;
+      return state.updateIn([channelId, 'chatters'], existingChatters => messages.reduce((chatters, { sender }) => {
+        if (chatters.findIndex(item => item.get('id') === sender) === -1) {
+          return chatters.push(Immutable.fromJS({ id: sender }));
+        }
+        return chatters;
+      }, existingChatters));
     }
     default: break;
   }

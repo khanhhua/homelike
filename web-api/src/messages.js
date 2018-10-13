@@ -187,6 +187,8 @@ async function create(ctx) {
       createdAt: new Date(),
     };
     dbg(`Persisting new message for channel #${channelId}`);
+
+    await db.Channel.findByIdAndUpdate(channelId, { $addToSet: { chatters: user.sub } });
     await new Promise((resolve, reject) => {
       dbg('Find and update...');
 
