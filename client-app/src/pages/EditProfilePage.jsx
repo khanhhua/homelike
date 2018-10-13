@@ -197,14 +197,14 @@ class EditProfilePage extends Component {
           <Row>
             <Col xs={12} md={8} className="text-center">
               <Button
-                className="btn-primary m1"
+                className="btn-primary m-1"
                 disabled={hasErrors(errors)}
                 onClick={this.onSubmit}
               >
                 Save Changes
               </Button>
               <Button
-                className="btn-default m1"
+                className="btn-default m-1"
                 onClick={() => dispatch(goBack())}
               >
                 Cancel

@@ -27,6 +27,18 @@ export default class TalkBox extends Component {
     };
   }
 
+  handleKeyDown = (e) => {
+    if (!(e.keyCode === 13 && e.ctrlKey)) {
+      return;
+    }
+
+    e.preventDefault();
+    const { onSend } = this.props;
+    const { text } = this.state;
+
+    onSend(text).then(() => this.setState({ text: '' }));
+  };
+
   render() {
     const { className, onSend, onComplete } = this.props;
     const { editMode, text } = this.state;
@@ -36,9 +48,11 @@ export default class TalkBox extends Component {
         <div className={cx(styles['form-group'], 'form-group')}>
           <textarea
             value={text}
+            placeholder="Ctrl + Enter to send"
             onChange={({ target: { value } }) => this.setState({ text: value })}
             className={cx(styles['form-control'], 'form-control')}
             rows={4}
+            onKeyDown={this.handleKeyDown}
           />
         </div>
         {editMode
