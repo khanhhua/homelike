@@ -49,7 +49,7 @@ export default function makeApp() {
         dbg(devError);
 
         ctx.body = {
-          success: false,
+          ok: false,
           code: 400,
           type: 'error',
           message: 'Bad Request',
@@ -59,7 +59,7 @@ export default function makeApp() {
     } catch (err) {
       ctx.status = err.status || 500;
       ctx.body = {
-        success: false,
+        ok: false,
         code: err.status || 500,
         type: 'error',
         message: err.message || 'Bad Request',

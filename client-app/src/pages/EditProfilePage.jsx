@@ -14,6 +14,8 @@ import styles from './profile-page.module.scss';
 
 import timezones from './timezones.json';
 
+const LOGIN_URL = process.env.REACT_APP_LOGIN_URL || '/';
+
 function isRequired(value) {
   if (typeof value === 'undefined' || value === null || value.toString().trim() === '') {
     return 'Required';
@@ -29,6 +31,7 @@ function hasErrors(errors) {
 class EditProfilePage extends Component {
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
+    auth: PropTypes.object.isRequired,
     profile: PropTypes.shape({
       displayName: PropTypes.string,
       work: PropTypes.string,
@@ -42,8 +45,13 @@ class EditProfilePage extends Component {
 
   constructor(props) {
     super(props);
+    const { dispatch, auth } = props;
 
-    props.dispatch(actions.loadProfile());
+    if (!auth.user) {
+      window.location.href = LOGIN_URL;
+      return;
+    }
+    dispatch(actions.loadProfile());
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) { // eslint-disable-line
@@ -210,7 +218,9 @@ class EditProfilePage extends Component {
 }
 
 const mapStateToProps = (state = Immutable.Map()) => (
-  { profile: state.get('profile') ? state.get('profile').toJS() : {} }
-);
+  {
+    auth: state.get('auth') ? state.get('auth').toJS() : null,
+    profile: state.get('profile') ? state.get('profile').toJS() : {},
+  });
 
 export default connect(mapStateToProps, dispatch => ({ dispatch }))(EditProfilePage);

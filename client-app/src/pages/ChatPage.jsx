@@ -15,11 +15,13 @@ import { loadChannels, selectChannel, loadProfile } from '../store/actions';
 import ChatterBadge from '../components/ChatterBadge';
 import Welcome from '../components/Welcome';
 
+const LOGIN_URL = process.env.REACT_APP_LOGIN_URL || '/';
 let modalPromise;
 
 class ChatPage extends Component {
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
+    auth: PropTypes.func.isRequired,
     users: PropTypes.object.isRequired,
     profile: PropTypes.object.isRequired,
     channels: PropTypes.array.isRequired,
@@ -34,7 +36,11 @@ class ChatPage extends Component {
 
   constructor(props) {
     super(props);
-    const { activeChannelId } = props;
+    const { auth, activeChannelId } = props;
+    if (!auth.user) {
+      window.location.href = LOGIN_URL;
+      return;
+    }
 
     props.dispatch(loadProfile());
     props.dispatch(loadChannels());
@@ -169,8 +175,4 @@ const mapDispatchToProps = dispatch => ({
 export default connect(mapStateToProps, mapDispatchToProps, null,
   {
     pure: false,
-    areStatesEqual(a, b) {
-      debugger;
-      return a.equals(b);
-    },
   })(ChatPage);

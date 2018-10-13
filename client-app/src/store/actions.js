@@ -51,6 +51,10 @@ export const authenticate = (email, password) => async (dispatch) => {
   try {
     const result = await api.authenticate(email, password);
     const { authToken } = result;
+    if (!authToken) {
+      dispatch(action(ACTION_AUTHENTICATE, ACTION_STATUS_ERROR, result));
+      return;
+    }
 
     localStorage.setItem('authToken', authToken);
     dispatch(action(ACTION_AUTHENTICATE, ACTION_STATUS_SUCCESS, result));

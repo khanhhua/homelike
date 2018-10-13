@@ -49,6 +49,8 @@ Promise.all([
           id: SERVICE_ID,
           enableTagOverride: false,
           tags: [
+            'urlprefix-/index.html',
+            'urlprefix-/static',
             'urlprefix-/api/v1/auth',
             'urlprefix-/api/v1/profile',
             'urlprefix-/api/v1/users',

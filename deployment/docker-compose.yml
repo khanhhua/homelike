@@ -45,8 +45,11 @@ services:
       - CONSUL_PORT=8500
       - ADVERTISED_HOSTNAME=web-api-1
       - ADVERTISED_PORT=8080
+      - STATIC_ROOT=/assets/client-app
     ports:
       - 8080
+    volumes:
+      - ../client-app/build:/assets/client-app
 
   sse-connector-1:
     build:

@@ -8,12 +8,14 @@ import {
 import { connect } from 'react-redux';
 import { goBack } from 'react-router-redux';
 import * as actions from '../store/actions';
-
 import styles from './profile-page.module.scss';
+
+const LOGIN_URL = process.env.REACT_APP_LOGIN_URL || '/';
 
 class ProfilePage extends Component {
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
+    auth: PropTypes.object.isRequired,
     profile: PropTypes.shape({
       displayName: PropTypes.string,
       work: PropTypes.string,
@@ -27,7 +29,12 @@ class ProfilePage extends Component {
 
   constructor(props) {
     super(props);
-    const { profile: { id } } = props;
+    const { auth, profile: { id } } = props;
+
+    if (!auth.user) {
+      window.location.href = LOGIN_URL;
+      return;
+    }
 
     props.dispatch(actions.findUser(id));
   }
@@ -102,7 +109,10 @@ class ProfilePage extends Component {
 
 const mapStateToProps = (state = Immutable.Map(), ownProps) => {
   const { match: { params: { userId } } } = ownProps;
-  return { profile: state.getIn(['users', userId]) ? state.getIn(['users', userId]).toJS() : { id: userId } };
+  return {
+    auth: state.get('auth') ? state.get('auth').toJS() : null,
+    profile: state.getIn(['users', userId]) ? state.getIn(['users', userId]).toJS() : { id: userId },
+  };
 };
 
 export default connect(mapStateToProps, dispatch => ({ dispatch }), null,
