@@ -5,6 +5,32 @@
     "name": "Channel 1",
     "chatters": ["u1", "u2"],
     "createdAt": "2018-10-01T00:00:00Z",
-    "lastMsgAt": "2018-10-01T00:00:00Z"
+    "lastMsgAt": "2018-10-01T00:00:00Z",
+    "messages": [
+      {
+        "id": "01",
+        "sender": "u1",
+        "body": "Lorem ipsum",
+        "createdAt": "2018-10-01T00:00:00Z"
+      },
+      {
+        "id": "02",
+        "sender": "u2",
+        "body": "Sit amet consecteur",
+        "createdAt": "2018-10-01T00:10:00Z"
+      },
+      {
+        "id": "03",
+        "sender": "u1",
+        "body": "Vivamus adipisicing in placerat dictumst deserunt hymenaeos libero assumenda eius magnam iste lobortis aperiam convallis laboriosam reiciendis rem, faucibus sollicitudin tristique magnis eiusmod",
+        "createdAt": "2018-10-01T00:20:00Z"
+      },
+      {
+        "id": "04",
+        "sender": "u2",
+        "body": "Purus vel massa? ",
+        "createdAt": "2018-10-01T00:30:00Z"
+      }
+    ]
   }
 }

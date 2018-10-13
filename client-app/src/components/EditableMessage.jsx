@@ -1,13 +1,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, ButtonGroup, Glyphicon } from 'react-bootstrap';
+import {
+  Button, ButtonGroup, Glyphicon, Image,
+} from 'react-bootstrap';
+import cx from 'classnames';
 import TalkBox from './TalkBox';
 
 import AppContext from '../AppContext';
 import * as actions from '../store/actions';
+import styles from './chat-detail.module.scss';
 
 export default class EditableMessage extends Component {
   static propTypes = {
+    displayName: PropTypes.string.isRequired,
+    avatarUrl: PropTypes.string.isRequired,
     message: PropTypes.shape({
       id: PropTypes.string.isRequired,
       sender: PropTypes.string.isRequired,
@@ -34,12 +40,12 @@ export default class EditableMessage extends Component {
   }
 
   render() {
-    const { message } = this.props;
+    const { displayName, avatarUrl, message } = this.props;
     const { text, editMode } = this.state;
 
     if (message.removed) {
       return (
-        <div className="message media">
+        <div className={cx(styles.message, 'media')}>
           <div className="media-body">
             <p className="text-center">
               <i className="text-muted">This message has been removed</i>
@@ -50,25 +56,19 @@ export default class EditableMessage extends Component {
     }
 
     return (
-      <div className="message media editable">
+      <div className={cx(styles.editable, styles.message, 'media')}>
         <div className="media-left">
-          <img
-            alt="64x64"
-            className="media-object thumbnail"
-            src="https://picsum.photos/64/64"
-            data-holder-rendered="true"
-            style={{ width: 64, height: 64 }}
-          />
+          <Image className={cx(styles.thumbnail)} thumbnail src={avatarUrl || 'https://picsum.photos/192/192'} />
         </div>
         <AppContext.Consumer>
           {({ dispatch, modalDelegate, active }) => (
             <div className="media-body">
-              <h5 className="media-heading">{message.sender}</h5>
+              <h5 className="media-heading">{displayName}</h5>
               <div className="text-muted">{message.createdAt}</div>
               {!editMode
               && (
                 <>
-                  <ButtonGroup className="pull-right">
+                  <ButtonGroup className={cx(styles['btn-group'], 'pull-right')}>
                     <Button
                       onClick={() => this.setState({ editMode: true })}
                       bsStyle="link"

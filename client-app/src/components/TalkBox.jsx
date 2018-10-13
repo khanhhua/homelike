@@ -7,12 +7,14 @@ import styles from './talk-box.module.scss';
 
 export default class TalkBox extends Component {
   static propTypes = {
+    className: PropTypes.string,
     onSend: PropTypes.func.isRequired,
     onComplete: PropTypes.func,
     text: PropTypes.string,
   };
 
   static defaultProps = {
+    className: null,
     text: '',
     onComplete: null,
   };
@@ -26,11 +28,11 @@ export default class TalkBox extends Component {
   }
 
   render() {
-    const { onSend, onComplete } = this.props;
+    const { className, onSend, onComplete } = this.props;
     const { editMode, text } = this.state;
 
     return (
-      <div className={cx(styles['talk-box'])}>
+      <div className={cx(styles['talk-box'], className)}>
         <div className={cx(styles['form-group'], 'form-group')}>
           <textarea
             value={text}

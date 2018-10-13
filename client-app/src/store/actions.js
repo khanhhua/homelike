@@ -15,7 +15,7 @@ import {
   ACTION_LOAD_PROFILE,
   ACTION_SAVE_PROFILE,
   ACTION_UPDATE_MESSAGE,
-  ACTION_REMOVE_MESSAGE,
+  ACTION_REMOVE_MESSAGE, ACTION_FIND_USERS,
 } from './action-types';
 
 import * as api from './api';
@@ -160,6 +160,18 @@ export const loadProfile = () => async (dispatch) => {
     dispatch(action(ACTION_LOAD_PROFILE, ACTION_STATUS_SUCCESS, profile));
   } catch (e) {
     dispatch(action(ACTION_LOAD_PROFILE, ACTION_STATUS_ERROR, e));
+  }
+};
+
+export const findUser = id => async (dispatch) => {
+  dispatch(action(ACTION_FIND_USERS, ACTION_STATUS_PENDING));
+
+  try {
+    const users = await api.findUsers([id]);
+
+    dispatch(action(ACTION_FIND_USERS, ACTION_STATUS_SUCCESS, users));
+  } catch (e) {
+    dispatch(action(ACTION_FIND_USERS, ACTION_STATUS_ERROR, e));
   }
 };
 

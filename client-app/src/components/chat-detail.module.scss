@@ -1,6 +1,11 @@
+.chat-detail {
+  .talk-box {
+    margin-top: 1em;
+  }
+}
+
 .chat-meta {
   display: block;
-  padding-top: 1em;
   padding-bottom: 1em;
 }
 
@@ -38,3 +43,23 @@
   }
 }
 
+.message-list {
+  .talk-box {
+    margin-top: 1em;
+  }
+}
+
+.message {
+  .thumbnail {
+    min-width: 64px;
+    height: 64px;
+  }
+
+  &.editable .btn-group {
+    opacity: 0;
+    transition: opacity 200ms ease-out;
+  }
+  &.editable:hover .btn-group {
+    opacity: 1;
+  }
+}

@@ -5,14 +5,30 @@ import AppContext from '../AppContext';
 import Message from './Message';
 import EditableMessage from './EditableMessage';
 
+const userLookup = (users, id, ...propPath) => users.getIn([id, ...propPath]);
+
 const MessageList = ({ messages }) => (
   <AppContext.Consumer>
-    {({ profile }) => (
+    {({ profile, users }) => (
       <div className="message-list">
         {messages.map(message => (
           profile.id === message.sender
-            ? <EditableMessage key={`message-${message.id}`} message={message} />
-            : <Message key={`message-${message.id}`} message={message} />
+            ? (
+              <EditableMessage
+                key={`message-${message.id}`}
+                avatarUrl={userLookup(users, message.sender, 'avatarUrl')}
+                displayName={userLookup(users, message.sender, 'displayName')}
+                message={message}
+              />
+            )
+            : (
+              <Message
+                key={`message-${message.id}`}
+                avatarUrl={userLookup(users, message.sender, 'avatarUrl')}
+                displayName={userLookup(users, message.sender, 'displayName')}
+                message={message}
+              />
+            )
         ))}
       </div>
     )}

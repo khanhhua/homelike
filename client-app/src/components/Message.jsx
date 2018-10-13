@@ -1,24 +1,29 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
+import { Image } from 'react-bootstrap';
 
-const Message = ({ message }) => (
-  <div className="media">
+import { Link } from 'react-router-dom';
+import styles from './chat-detail.module.scss';
+
+const Message = ({ displayName, avatarUrl, message }) => (
+  <div className={cx(styles.message, 'media')}>
     <div className="media-left">
-      <img
-        alt="64x64"
-        className="media-object thumbnail"
-        src="https://picsum.photos/64/64"
-        data-holder-rendered="true"
-        style={{ width: 64, height: 64 }}
-      />
+      <Image className={cx(styles.thumbnail)} thumbnail src={avatarUrl || 'https://picsum.photos/192/192'} />
     </div>
     <div className="media-body">
-      <h5 className="media-heading">{message.sender}</h5>
+      <h5 className="media-heading">
+        <Link to={`/users/${message.sender}`}>
+          {displayName}
+        </Link>
+      </h5>
       <p>{message.body}</p>
     </div>
   </div>);
 
 Message.propTypes = {
+  avatarUrl: PropTypes.string.isRequired,
+  displayName: PropTypes.string.isRequired,
   message: PropTypes.shape({
     id: PropTypes.string.isRequired,
     sender: PropTypes.string.isRequired,

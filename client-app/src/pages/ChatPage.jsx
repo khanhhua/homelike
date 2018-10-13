@@ -19,6 +19,7 @@ let modalPromise;
 class ChatPage extends Component {
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
+    users: PropTypes.object.isRequired,
     profile: PropTypes.object.isRequired,
     channels: PropTypes.array.isRequired,
     active: PropTypes.object.isRequired,
@@ -60,7 +61,7 @@ class ChatPage extends Component {
 
   render() {
     const {
-      dispatch, profile, channels, active,
+      dispatch, users, profile, channels, active,
     } = this.props;
 
     const { isModalVisible, modalDelegate } = this.state;
@@ -75,7 +76,7 @@ class ChatPage extends Component {
                 && (
                   <div className="user-badge">
                     <Link to="/profile">
-                      <ChatterBadge displayName={profile.username} avatarUrl={profile.avatarUrl} />
+                      <ChatterBadge displayName={profile.displayName} avatarUrl={profile.avatarUrl} />
                     </Link>
                   </div>
                 )}
@@ -84,7 +85,7 @@ class ChatPage extends Component {
             </Col>
             <Col md={7}>
               <AppContext.Provider value={{
-                dispatch, modalDelegate, profile, active,
+                dispatch, modalDelegate, users, profile, active,
               }}
               >
                 <ChatDetail

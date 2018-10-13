@@ -7,7 +7,7 @@ import { format } from './utils';
 
 const dbg = debug('web-api:profile');
 
-const PROFILE_PROJECTION = 'username displayName email work phone avatarUrl';
+const PROFILE_PROJECTION = 'username displayName email work phone timezone avatarUrl';
 /**
  *
  * @param ctx

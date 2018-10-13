@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "users": [
+    {
+      "id": "u2",
+      "username": "user2",
+      "displayName": "User Two",
+      "work": "QC Engineer",
+      "phone": "+1 111 921-1029",
+      "timezone": "Asia/Kuala_Lumpur",
+      "avatarUrl": "https://picsum.photos/g/192/192"
+    }
+  ]
+}

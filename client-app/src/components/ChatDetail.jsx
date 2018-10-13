@@ -12,7 +12,7 @@ import ChatterBadge from './ChatterBadge';
 import styles from './chat-detail.module.scss';
 
 const ChatDetail = ({ channel, messages }) => (
-  <div className="chat-detail">
+  <div className={styles['chat-detail']}>
     {!channel
     && (
       <>
@@ -32,7 +32,9 @@ const ChatDetail = ({ channel, messages }) => (
         </div>
         <MessageList messages={messages} />
         <AppContext.Consumer>
-          {({ dispatch }) => <TalkBox onSend={text => dispatch(actions.sendMessage(channel.id, text))} />}
+          {({ dispatch }) => (
+            <TalkBox className={styles['talk-box']} onSend={text => dispatch(actions.sendMessage(channel.id, text))} />
+          )}
         </AppContext.Consumer>
       </>
     )}

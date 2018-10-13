@@ -20,11 +20,11 @@ if (process.env.REACT_APP_MOCK) {
       'GET /api/v1/profile': require('./profile.json'),
       'PUT /api/v1/profile': require('./put-profile.json'),
       'POST /api/v1/auth/login': require('./auth.json'),
-      'GET /api/v1/users': require('./users'),
+      // 'GET /api/v1/users': require('./users'),
+      'GET /api/v1/users': require('./users-u2.json'),
       'GET /api/v1/channels': require('./channels.json'),
       'GET /api/v1/channels/1': {
         ...require('./channel-1.json'),
-        messages: require('./channel-1-messages'),
       },
       'GET /api/v1/channels/2': require('./channel-2.json'),
     },
