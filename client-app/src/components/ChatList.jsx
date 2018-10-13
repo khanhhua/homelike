@@ -2,35 +2,33 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
-import { ListGroup, ListGroupItem } from 'react-bootstrap';
-import * as actions from '../store/actions';
+import { ListGroup } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
-const ChatList = ({ dispatch, channels, active }) => (
+const ChatList = ({ channels, active }) => (
   <div className="chat-list">
     {channels.length === 0
     && <div data-test-id="message" className="alert alert-info">Empty</div>
     }
     <ListGroup>
       {channels.map(channel => (
-        <ListGroupItem
+        <Link
+          to={`/channels/${channel.id}`}
+          replace
           key={channel.id}
-          className={cx('text-left', { active: active && active.id === channel.id })}
+          className={cx('text-left', 'list-group-item', { active: active && active.id === channel.id })}
           role="button"
           tabIndex={0}
-          onClick={() => {
-            dispatch(actions.selectChannel(channel));
-          }}
           onKeyDown={() => null}
         >
           {channel.name}
-        </ListGroupItem>
+        </Link>
       ))}
     </ListGroup>
   </div>
 );
 
 ChatList.propTypes = {
-  dispatch: PropTypes.func.isRequired,
   active: PropTypes.object,
   channels: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string,

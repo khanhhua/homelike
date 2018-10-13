@@ -11,8 +11,9 @@ import AppContext from '../AppContext';
 
 import ChatList from '../components/ChatList';
 import ChatDetail from '../components/ChatDetail';
-import { loadChannels, loadProfile } from '../store/actions';
+import { loadChannels, selectChannel, loadProfile } from '../store/actions';
 import ChatterBadge from '../components/ChatterBadge';
+import Welcome from '../components/Welcome';
 
 let modalPromise;
 
@@ -22,14 +23,24 @@ class ChatPage extends Component {
     users: PropTypes.object.isRequired,
     profile: PropTypes.object.isRequired,
     channels: PropTypes.array.isRequired,
-    active: PropTypes.object.isRequired,
+    activeChannelId: PropTypes.string,
+    active: PropTypes.object,
+  };
+
+  static defaultProps = {
+    active: null,
+    activeChannelId: null,
   };
 
   constructor(props) {
     super(props);
+    const { activeChannelId } = props;
 
-    props.dispatch(loadChannels());
     props.dispatch(loadProfile());
+    props.dispatch(loadChannels());
+    if (activeChannelId) {
+      props.dispatch(selectChannel(activeChannelId));
+    }
 
     this.state = {
       isModalVisible: false,
@@ -59,6 +70,14 @@ class ChatPage extends Component {
     modalPromise = null;
   };
 
+  UNSAFE_componentWillReceiveProps(nextProps) { // eslint-disable-line
+    const { activeChannelId: next } = nextProps;
+    const { activeChannelId: prev } = this.props;
+    if (next && next !== prev) {
+      nextProps.dispatch(selectChannel(next));
+    }
+  }
+
   render() {
     const {
       dispatch, users, profile, channels, active,
@@ -80,19 +99,26 @@ class ChatPage extends Component {
                     </Link>
                   </div>
                 )}
-                <ChatList channels={channels} active={active.channel} dispatch={dispatch} />
+                <ChatList channels={channels} active={active && active.channel} dispatch={dispatch} />
               </>
             </Col>
             <Col md={7}>
-              <AppContext.Provider value={{
-                dispatch, modalDelegate, users, profile, active,
-              }}
-              >
-                <ChatDetail
-                  channel={active.channel || null}
-                  messages={active.messages || []}
-                />
-              </AppContext.Provider>
+              {!active
+              && (
+                <Welcome />
+              )}
+              {!!active
+              && (
+                <AppContext.Provider value={{
+                  dispatch, modalDelegate, users, profile, active,
+                }}
+                >
+                  <ChatDetail
+                    channel={active.channel || null}
+                    messages={active.messages || []}
+                  />
+                </AppContext.Provider>
+              )}
             </Col>
           </Row>
         </Grid>
@@ -122,22 +148,30 @@ class ChatPage extends Component {
   }
 }
 
-const mapStateToProps = (state = Immutable.Map()) => {
-  const active = state.get('active');
+const mapStateToProps = (state = Immutable.Map(), ownProps) => {
+  const { match: { params: { channelId } } } = ownProps;
 
   return {
     auth: state.get('auth') ? state.get('auth').toJS() : null,
     profile: state.get('profile') ? state.get('profile').toJS() : null,
     users: state.get('users'),
     channels: state.get('channels').valueSeq().toJS(),
-    active: {
-      channel: active ? state.getIn(['channels', active]).toJS() : null,
-      messages: active && state.getIn(['chats', active]) ? state.getIn(['chats', active]).toJS() : [],
-    },
+    activeChannelId: channelId,
+    active: channelId ? {
+      channel: channelId && state.getIn(['channels', channelId]) ? state.getIn(['channels', channelId]).toJS() : null,
+      messages: channelId && state.getIn(['chats', channelId]) ? state.getIn(['chats', channelId]).toJS() : [],
+    } : null,
   };
 };
 const mapDispatchToProps = dispatch => ({
   dispatch,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ChatPage);
+export default connect(mapStateToProps, mapDispatchToProps, null,
+  {
+    pure: false,
+    areStatesEqual(a, b) {
+      debugger;
+      return a.equals(b);
+    },
+  })(ChatPage);

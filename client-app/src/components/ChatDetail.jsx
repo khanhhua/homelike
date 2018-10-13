@@ -13,12 +13,6 @@ import styles from './chat-detail.module.scss';
 
 const ChatDetail = ({ channel, messages }) => (
   <div className={styles['chat-detail']}>
-    {!channel
-    && (
-      <>
-        <p>Choose a channel...</p>
-      </>
-    )}
     {!!channel
     && (
       <>

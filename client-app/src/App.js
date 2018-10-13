@@ -14,7 +14,8 @@ export default () => (
     <Router>
       <Switch>
         <Route exact path="/" component={LoginPage} />
-        <Route path="/channels" component={ChatPage} />
+        <Route exact path="/channels" component={ChatPage} />
+        <Route path="/channels/:channelId" component={ChatPage} />
         <Route path="/profile" component={EditProfilePage} />
         <Route path="/users/:userId" component={ProfilePage} />
       </Switch>

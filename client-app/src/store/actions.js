@@ -72,24 +72,24 @@ export const loadChannels = () => async (dispatch) => {
   }
 };
 
-export const selectChannel = channel => async (dispatch) => {
-  dispatch(action(ACTION_SELECT_CHANNEL, ACTION_STATUS_PENDING, channel));
+export const selectChannel = channelId => async (dispatch) => {
+  dispatch(action(ACTION_SELECT_CHANNEL, ACTION_STATUS_PENDING, { id: channelId }));
 
   let updatedChannel;
   try {
-    let anchor = getChannelAnchor(channel);
-    updatedChannel = await api.loadChannel(channel.id, { anchor });
+    let anchor = 0; // getChannelAnchor(channel);
+    updatedChannel = await api.loadChannel(channelId, { anchor });
     dispatch(action(ACTION_SELECT_CHANNEL, ACTION_STATUS_SUCCESS, updatedChannel));
 
     anchor = getChannelAnchor(updatedChannel);
-    getStreamer().subscribe(channel.id, { anchor },
+    getStreamer().subscribe(channelId, { anchor },
       {
         receiveCallback(err, messages) {
           if (err) {
             return;
           }
           dispatch(action(ACTION_RECEIVE_MESSAGES, ACTION_STATUS_SUCCESS, {
-            ...channel,
+            id: channelId,
             messages,
           }));
         },
@@ -98,7 +98,7 @@ export const selectChannel = channel => async (dispatch) => {
             return;
           }
           dispatch(action(ACTION_EDIT_MESSAGES, ACTION_STATUS_SUCCESS, {
-            ...channel,
+            id: channelId,
             messages,
           }));
         },
@@ -107,7 +107,7 @@ export const selectChannel = channel => async (dispatch) => {
             return;
           }
           dispatch(action(ACTION_REMOVE_MESSAGES, ACTION_STATUS_SUCCESS, {
-            ...channel,
+            id: channelId,
             messages,
           }));
         },

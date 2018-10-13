@@ -8,7 +8,7 @@ export default (state = 0, action) => {
 
   switch (action.type) {
     case ACTION_SELECT_CHANNEL: {
-      const { id: channelId } = action.payload;
+      const channelId = action.payload;
       return channelId;
     }
     default: break;
