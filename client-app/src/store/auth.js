@@ -10,7 +10,7 @@ try {
   const [, encoded] = authToken.split('.');
 
   const { username } = JSON.parse(atob(encoded));
-  initialState = Immutable.fromJS({ username });
+  initialState = Immutable.fromJS({ user: { username } });
 } catch (e) {
   initialState = Immutable.Map();
 }

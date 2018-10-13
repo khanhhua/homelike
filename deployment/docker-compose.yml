@@ -46,6 +46,7 @@ services:
       - ADVERTISED_HOSTNAME=web-api-1
       - ADVERTISED_PORT=8080
       - STATIC_ROOT=/assets/client-app
+      - DEFAULT_CHANNELS=chatbot,general,gmail,housing,office365
     ports:
       - 8080
     volumes:

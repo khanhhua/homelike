@@ -26,7 +26,7 @@ const UserSchema = new Schema(
     displayName: String,
     work: String,
     phone: String,
-    timezone: String,
+    timezone: { type: String, default: 'Asia/Kuala_Lumpur' },
     avatarUrl: String,
   }, schemaOptions,
 );
@@ -66,7 +66,7 @@ export const Channel = mongoose.model('Channel', ChannelSchema);
 export const ChannelChunk = mongoose.model('ChannelChunk', ChannelChunkSchema);
 
 export async function initDb() {
-  dbg(`Initializing database for the given URL ${DATABASE_URL}...`);
+  console.log(`Initializing database for the given URL ${DATABASE_URL}...`);
   const options = {
     useNewUrlParser: true,
     autoIndex: false, // Don't build indexes
@@ -81,14 +81,29 @@ export async function initDb() {
   };
   await mongoose.connect(DATABASE_URL, options);
 
-  if (false) {
-    dbg('Executing query scripts...');
-    try {
-      await User.create({ username: 'user1', email: 'user1@mailinator.com', channels: [] });
-      await Channel.create({ name: 'general' });
-      await Channel.create({ name: 'chatbot' });
-    } catch (e) {
-      console.log(e.stackTrace);
+  if (process.env.DEFAULT_CHANNELS) {
+    const defaultChannels = process.env.DEFAULT_CHANNELS.split(',').map(item => item.trim()).filter(Boolean);
+    if (defaultChannels.length) {
+      console.log('Ensuring default channels...');
+      try {
+        await defaultChannels.reduce(async (promise, channelName) => {
+          await promise;
+          dbg(`Upserting ${channelName}...`);
+          return Channel.updateOne(
+            { name: channelName },
+            {
+              createdAt: moment().utc().toDate(),
+              chatters: [],
+              activeChunk: null,
+              chunkExpiry: null,
+            }, { upsert: true },
+          ).exec();
+        }, Promise.resolve());
+
+        console.log('Done loading default channels');
+      } catch (e) {
+        console.error(e.stackTrace);
+      }
     }
   }
   dbg('Done');

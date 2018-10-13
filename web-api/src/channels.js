@@ -34,7 +34,15 @@ async function view(ctx) {
     dbg(`Viewing one channel #${channelId}`);
     const channel = await db.Channel.findById(channelId).lean().exec();
     dbg(`Filtering messages by ${anchorISO || 'latest'}`);
-    const messages = await db.queryMessagesByAnchor(channelId, anchorISO);
+
+    let messages;
+    try {
+      messages = await db.queryMessagesByAnchor(channelId, anchorISO);
+    } catch (e) {
+      if (e.status === 404) {
+        messages = [];
+      }
+    }
 
     ctx.body = {
       ok: true,
