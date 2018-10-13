@@ -91,17 +91,15 @@ async function edit(ctx) {
     const sender = user.sub;
     dbg(`User ${sender} editing one message located at #${channelId}/#${messageId}`);
 
-    // TODO Iterate over chunks starting from today
-    const chunk = await db.ChannelChunk.findOne({ channelId }).sort('-createdAt').select('_id').lean()
-      .exec();
-    if (!chunk) {
-      ctx.throw(404, 'Channel chunk not found');
+    const channel = await db.Channel.findById(channelId).lean().exec();
+    if (!channel) {
+      ctx.throw(404, 'Channel not found');
     }
 
-    dbg(`Updating chunk #${chunk._id}...`);
+    dbg(`Updating chunk #${channel.activeChunk}...`);
     const result = await db.ChannelChunk.updateOne(
       {
-        _id: chunk._id,
+        _id: channel.activeChunk,
         messages: { $elemMatch: { _id: messageId, sender } },
       },
       { $set: { 'messages.$.body': text } },
@@ -140,17 +138,15 @@ async function remove(ctx) {
     const sender = user.sub;
     dbg(`User ${sender} removing one message located at #${channelId}/#${messageId}`);
 
-    // TODO Iterate over chunks starting from today
-    const chunk = await db.ChannelChunk.findOne({ channelId }).sort('-createdAt').select('_id').lean()
-      .exec();
-    if (!chunk) {
-      ctx.throw(404, 'Channel chunk not found');
+    const channel = await db.Channel.findById(channelId).lean().exec();
+    if (!channel) {
+      ctx.throw(404, 'Channel not found');
     }
 
-    dbg(`Removing chunk #${chunk._id}...`);
+    dbg(`Removing chunk #${channel.activeChunk}...`);
     const result = await db.ChannelChunk.updateOne(
       {
-        _id: chunk._id,
+        _id: channel.activeChunk,
       },
       { $pull: { messages: { _id: messageId, sender } } },
     );

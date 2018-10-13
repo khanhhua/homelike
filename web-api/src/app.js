@@ -1,6 +1,9 @@
 import debug from 'debug';
+import path from 'path';
+import fs from 'fs';
 
 import Koa from 'koa';
+import serve from 'koa-static';
 import bodyParser from 'koa-bodyparser';
 import * as swagger from 'swagger2';
 import { validate } from 'swagger2-koa';
@@ -13,12 +16,18 @@ import messages from './messages';
 import profile from './profile';
 
 const JWT_SECRET = process.env.JWT_SECRET || 's@cret';
+const STATIC_ROOT = process.env.STATIC_ROOT || path.resolve(path.join(__dirname, '..', 'static'));
 
 export default function makeApp() {
   const dbg = debug('web-api:app');
 
   const app = new Koa();
   const document = swagger.loadDocumentSync('./swagger/api.yaml');
+
+  if (fs.existsSync(STATIC_ROOT)) {
+    dbg(`Serving static assets from ${STATIC_ROOT}. Use a real web server in production instead!`);
+    app.use(serve(STATIC_ROOT));
+  }
 
   app.use(jwtMiddleware({ secret: JWT_SECRET }).unless({ path: ['/health', /^\/swagger/, /^\/api\/v1\/auth/] }));
   app.use(async (ctx, next) => {
