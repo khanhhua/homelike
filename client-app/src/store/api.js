@@ -15,13 +15,21 @@ function createHeaders() {
   };
 }
 
+async function standardResponseHandler(res) {
+  const json = await res.json();
+  if (!json.ok) {
+    throw json;
+  }
+  return json;
+}
+
 export async function register(email, password) {
   const body = await fetch(`${baseURL}/auth/register`, {
     method: 'POST',
     cache: 'no-cache',
     headers: createHeaders(),
     body: JSON.stringify({ email, password }),
-  }).then(res => res.json());
+  }).then(standardResponseHandler);
 
   if (body.ok) {
     return true;
@@ -36,7 +44,7 @@ export async function authenticate(email, password) {
     cache: 'no-cache',
     headers: createHeaders(),
     body: JSON.stringify({ email, password }),
-  }).then(res => res.json());
+  }).then(standardResponseHandler);
 
   return body;
 }
@@ -46,7 +54,7 @@ export async function findUsers(userIds) {
     method: 'GET',
     cache: 'no-cache',
     headers: createHeaders(),
-  }).then(res => res.json());
+  }).then(standardResponseHandler);
 
   if (body.ok) {
     return body.users;
@@ -59,7 +67,7 @@ export async function loadChannels() {
   const body = await fetch(`${baseURL}/channels`, {
     headers: createHeaders(),
     cache: 'no-cache',
-  }).then(res => res.json());
+  }).then(standardResponseHandler);
 
   if (body.ok) {
     return (body.channels || []).map(item => ({ ...item, chatters: item.chatters.map(id => ({ id })) }));
@@ -72,7 +80,7 @@ export async function loadChannel(id, { anchor }) {
   const body = await fetch(`${baseURL}/channels/${id}?anchor=${anchor || ''}`, {
     headers: createHeaders(),
     cache: 'no-cache',
-  }).then(res => res.json());
+  }).then(standardResponseHandler);
 
   if (body.ok) {
     const { channel } = body;
@@ -92,7 +100,7 @@ export async function sendMessage(channelId, message) {
     body: JSON.stringify({
       text: message,
     }),
-  }).then(res => res.json());
+  }).then(standardResponseHandler);
 
   if (body.ok) {
     return body.message;
@@ -109,7 +117,7 @@ export async function updateMessage(channelId, messageId, message) {
     body: JSON.stringify({
       text: message,
     }),
-  }).then(res => res.json());
+  }).then(standardResponseHandler);
 
   if (body.ok) {
     return body.message;
@@ -123,7 +131,7 @@ export async function removeMessage(channelId, messageId) {
     method: 'DELETE',
     headers: createHeaders(),
     cache: 'no-cache',
-  }).then(res => res.json());
+  }).then(standardResponseHandler);
 
   if (body.ok) {
     return true;
@@ -138,7 +146,7 @@ export async function loadProfile() {
     method: 'GET',
     headers: createHeaders(),
     cache: 'no-cache',
-  }).then(res => res.json());
+  }).then(standardResponseHandler);
 
   if (body.ok) {
     return body.profile;
@@ -153,7 +161,7 @@ export async function saveProfile(profile) {
     headers: createHeaders(),
     cache: 'no-cache',
     body: JSON.stringify(profile),
-  }).then(res => res.json());
+  }).then(standardResponseHandler);
 
   if (body.ok) {
     return body.profile;

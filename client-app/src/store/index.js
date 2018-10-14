@@ -24,7 +24,6 @@ const rootReducer = combineReducers({
 });
 
 const historyMiddlware = routerMiddleware(createHistory());
-const initialState = Immutable.Map();
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose; // eslint-disable-line
-export default () => createStore(rootReducer, initialState,
+export default (initialState = {}) => createStore(rootReducer, Immutable.fromJS(initialState),
   composeEnhancers(applyMiddleware(thunk, historyMiddlware)));
