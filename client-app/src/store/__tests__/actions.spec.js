@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
-import * as actions from '../actions';
 import { push } from 'react-router-redux';
+import * as actions from '../actions';
 import createStore from '..';
 import {
   ACTION_AUTHENTICATE,
