@@ -18,6 +18,7 @@ export default class EditableMessage extends Component {
       id: PropTypes.string.isRequired,
       sender: PropTypes.string.isRequired,
       body: PropTypes.string.isRequired,
+      createdAt: PropTypes.string.isRequired,
     }).isRequired,
   };
 
