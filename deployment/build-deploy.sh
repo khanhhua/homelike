@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 echo "Building client-app package with NPM..."
+npm --prefix ../client-app install
 npm --prefix ../client-app run build
 
 echo "Firing up docker-compose..."
