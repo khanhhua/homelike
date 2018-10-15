@@ -1,6 +1,7 @@
 /* eslint-env jest */
 
 import * as actions from '../actions';
+import { push } from 'react-router-redux';
 import createStore from '..';
 import {
   ACTION_AUTHENTICATE,
@@ -34,12 +35,15 @@ describe('authenticate', () => {
     const userId = 'u1';
     const username = 'User 1';
 
-    fetch.resetMocks();
-    fetch.mockResponseOnce(JSON.stringify({
+    const response = {
+      ok: true,
       authToken,
       username,
       id: userId,
-    }));
+    };
+
+    fetch.resetMocks();
+    fetch.mockResponseOnce(JSON.stringify(response));
 
     const store = createStore();
     const fn = actions.authenticate('john.doe@mailinator.com', 'p@ssword');
@@ -47,13 +51,10 @@ describe('authenticate', () => {
 
     fn(store.dispatch).then(() => {
       expect(spy).toHaveBeenCalled();
-      expect(spy.mock.calls).toHaveLength(2);
+      expect(spy.mock.calls).toHaveLength(3);
       expect(spy.mock.calls[0][0]).toEqual(actions.action(ACTION_AUTHENTICATE, ACTION_STATUS_PENDING, undefined));
-      expect(spy.mock.calls[1][0]).toEqual(actions.action(ACTION_AUTHENTICATE, ACTION_STATUS_SUCCESS, {
-        authToken,
-        username,
-        id: userId,
-      }));
+      expect(spy.mock.calls[1][0]).toEqual(actions.action(ACTION_AUTHENTICATE, ACTION_STATUS_SUCCESS, response));
+      expect(spy.mock.calls[2][0]).toEqual(push('/channels'));
 
       done();
     });
@@ -61,23 +62,30 @@ describe('authenticate', () => {
 });
 
 describe('loadChannels', () => {
-  it('should load channels', (done) => {
-    const channels = [
-      {
-        id: '1',
-        name: 'Channel 1',
-        createdAt: '2018-10-01T00:00:00Z',
-        lastMsgAt: '2018-10-01T00:00:00Z',
-      },
-      {
-        id: '2',
-        name: 'Channel 2',
-        createdAt: '2018-10-02T00:00:00Z',
-        lastMsgAt: '2018-10-02T00:10:00Z',
-      }];
+  const channels = [
+    {
+      id: '1',
+      name: 'Channel 1',
+      createdAt: '2018-10-01T00:00:00Z',
+      lastMsgAt: '2018-10-01T00:00:00Z',
+      chatters: [],
+    },
+    {
+      id: '2',
+      name: 'Channel 2',
+      createdAt: '2018-10-02T00:00:00Z',
+      lastMsgAt: '2018-10-02T00:10:00Z',
+      chatters: [],
+    }];
 
-    fetch.resetMocks();
-    fetch.mockResponseOnce(JSON.stringify(channels));
+  beforeEach(() => fetch.resetMocks());
+
+  it('should load channels', (done) => {
+    const response = {
+      ok: true,
+      channels,
+    };
+    fetch.mockResponseOnce(JSON.stringify(response));
 
     const store = createStore();
     const fn = actions.loadChannels();
@@ -86,8 +94,35 @@ describe('loadChannels', () => {
     fn(store.dispatch).then(() => {
       expect(spy).toHaveBeenCalled();
       expect(spy.mock.calls).toHaveLength(2);
-      expect(spy.mock.calls[0][0]).toEqual(actions.action(ACTION_LOAD_CHANNELS, ACTION_STATUS_PENDING, undefined));
+      expect(spy.mock.calls[0][0]).toEqual(actions.action(ACTION_LOAD_CHANNELS, ACTION_STATUS_PENDING));
       expect(spy.mock.calls[1][0]).toEqual(actions.action(ACTION_LOAD_CHANNELS, ACTION_STATUS_SUCCESS, channels));
+
+      done();
+    });
+  });
+
+  it('should dispatch error for a bad API call', (done) => {
+    const response = {
+      ok: false,
+      code: 400,
+      message: 'Bad Request',
+    };
+
+    fetch.mockResponseOnce(JSON.stringify(response), { status: 400 });
+
+    const store = createStore({ channels: {} });
+    const fn = actions.loadChannels();
+    const spy = jest.spyOn(store, 'dispatch');
+    const spyApiCall = jest.spyOn(api, 'loadChannels');
+
+    fn(store.dispatch).then(() => {
+      expect(spy).toHaveBeenCalled();
+      expect(spy.mock.calls).toHaveLength(2);
+
+      expect(spy.mock.calls[0][0]).toEqual(actions.action(ACTION_LOAD_CHANNELS, ACTION_STATUS_PENDING));
+      expect(spy.mock.calls[1][0]).toEqual(actions.action(ACTION_LOAD_CHANNELS, ACTION_STATUS_ERROR, response));
+
+      expect(spyApiCall).toHaveBeenCalled();
 
       done();
     });
@@ -95,10 +130,8 @@ describe('loadChannels', () => {
 });
 
 describe('selectChannel', () => {
-  it('should select channel', (done) => {
-    const channel = {
-      id: '1',
-    };
+  it('should dispatch success for a good API call', (done) => {
+    const channelId = '1';
     const selectedChannel = {
       id: '1',
       name: 'Channel 1',
@@ -112,19 +145,63 @@ describe('selectChannel', () => {
     };
 
     fetch.resetMocks();
-    fetch.mockResponseOnce(JSON.stringify(response));
+    fetch.mockResponses(
+      [JSON.stringify(response), { status: 200 }],
+      [JSON.stringify({ ok: true, users: [] }, { status: 200 })],
+    );
 
     const store = createStore({ channels: { 1: selectedChannel } });
-    const fn = actions.selectChannel(channel.id);
+    const fn = actions.selectChannel(channelId);
     const spy = jest.spyOn(store, 'dispatch');
     const spyApiCall = jest.spyOn(api, 'loadChannel');
 
     fn(store.dispatch).then(() => {
       expect(spy).toHaveBeenCalled();
       expect(spy.mock.calls).toHaveLength(2);
-      expect(spy.mock.calls[0][0]).toEqual(actions.action(ACTION_SELECT_CHANNEL, ACTION_STATUS_PENDING, channel));
+      expect(spy.mock.calls[0][0]).toEqual(actions.action(ACTION_SELECT_CHANNEL, ACTION_STATUS_PENDING,
+        { id: channelId }));
       expect(spy.mock.calls[1][0]).toEqual(actions.action(ACTION_SELECT_CHANNEL, ACTION_STATUS_SUCCESS, selectedChannel));
       expect(getStreamer).toHaveBeenCalled();
+
+      expect(spyApiCall).toHaveBeenCalled();
+      expect(spyApiCall.mock.calls[0]).toEqual([channelId, { anchor: 0 }]);
+
+      done();
+    });
+  });
+
+  it('should dispatch error for a bad API call', (done) => {
+    const channelId = '1';
+    const selectedChannel = {
+      id: channelId,
+      name: 'Channel 1',
+      chatters: [],
+      createdAt: '2018-10-01T00:00:00Z',
+      lastMsgAt: '2018-10-01T00:00:00Z',
+    };
+    const response = {
+      ok: false,
+      code: 400,
+      message: 'Bad Request',
+    };
+
+    fetch.mockResponseOnce(JSON.stringify(response), { status: 400 });
+
+    const store = createStore({ channels: { [channelId]: selectedChannel } });
+    const fn = actions.selectChannel(channelId);
+    const spy = jest.spyOn(store, 'dispatch');
+    const spyApiCall = jest.spyOn(api, 'loadChannel');
+
+    fn(store.dispatch).then(() => {
+      expect(spy).toHaveBeenCalled();
+      expect(spy.mock.calls).toHaveLength(2);
+
+      expect(spy.mock.calls[0][0]).toEqual(actions.action(ACTION_SELECT_CHANNEL, ACTION_STATUS_PENDING,
+        { id: channelId }));
+      expect(spy.mock.calls[1][0]).toEqual(actions.action(ACTION_SELECT_CHANNEL, ACTION_STATUS_ERROR, response));
+
+      expect(spyApiCall).toHaveBeenCalled();
+      expect(spyApiCall.mock.calls[0]).toEqual([channelId, { anchor: 0 }]);
 
       done();
     });
@@ -136,7 +213,7 @@ describe('sendMessage', () => {
     fetch.resetMocks();
   });
 
-  it('should pass dispatch success for a good API call', (done) => {
+  it('should dispatch success for a good API call', (done) => {
     const channelId = 'abc';
     const messageId = '123';
     const message = { id: messageId, sender: 'u1', body: 'existing body' };
@@ -166,7 +243,7 @@ describe('sendMessage', () => {
     });
   });
 
-  it('should pass dispatch error for a bad API call', (done) => {
+  it('should dispatch error for a bad API call', (done) => {
     const channelId = 'abc';
     const messageId = '123';
     const message = { id: messageId, sender: 'u1', body: 'existing body' };
@@ -205,7 +282,7 @@ describe('updateMessage', () => {
     fetch.resetMocks();
   });
 
-  it('should pass dispatch success for a good API call', (done) => {
+  it('should dispatch success for a good API call', (done) => {
     const channelId = 'abc';
     const messageId = '123';
     const message = { id: messageId, sender: 'u1', body: 'existing body' };
@@ -237,7 +314,7 @@ describe('updateMessage', () => {
     });
   });
 
-  it('should pass dispatch error for a bad API call', (done) => {
+  it('should dispatch error for a bad API call', (done) => {
     const channelId = 'abc';
     const messageId = '123';
     const message = { id: messageId, sender: 'u1', body: 'existing body' };
@@ -276,7 +353,7 @@ describe('removeMessage', () => {
     fetch.resetMocks();
   });
 
-  it('should pass dispatch success for a good API call', (done) => {
+  it('should dispatch success for a good API call', (done) => {
     const channelId = 'abc';
     const message = { id: '123' };
     const response = {
@@ -305,7 +382,7 @@ describe('removeMessage', () => {
     });
   });
 
-  it('should pass dispatch error for a bad API call', (done) => {
+  it('should dispatch error for a bad API call', (done) => {
     const channelId = 'abc';
     const message = { id: '123' };
     const response = {
@@ -342,7 +419,7 @@ describe('loadProfile', () => {
     fetch.resetMocks();
   });
 
-  it('should pass dispatch success for a good API call', (done) => {
+  it('should dispatch success for a good API call', (done) => {
     const profile = {
       id: 'u1',
       username: 'user1',
@@ -376,7 +453,7 @@ describe('loadProfile', () => {
     });
   });
 
-  it('should pass dispatch error for a bad API call', (done) => {
+  it('should dispatch error for a bad API call', (done) => {
     const response = {
       ok: false,
       code: 400,
@@ -409,7 +486,7 @@ describe('findUser', () => {
     fetch.resetMocks();
   });
 
-  it('should pass dispatch success for a good API call', (done) => {
+  it('should dispatch success for a good API call', (done) => {
     const response = {
       ok: true,
       users: [
@@ -442,7 +519,7 @@ describe('findUser', () => {
     });
   });
 
-  it('should pass dispatch error for a bad API call', (done) => {
+  it('should dispatch error for a bad API call', (done) => {
     const response = {
       ok: false,
       code: 400,
