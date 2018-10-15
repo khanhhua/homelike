@@ -31,6 +31,13 @@ export default class EditableMessage extends Component {
     };
   }
 
+  UNSAFE_componentWillReceiveProps(nextProps) { // eslint-disable-line
+    this.state = {
+      text: nextProps.message.body,
+      editMode: false,
+    };
+  }
+
   confirmBeforeRemoveMessage(dispatch, channelId, modalDelegate) { // eslint-disable-line
     modalDelegate.showModal().then(() => {
       const { message } = this.props;
