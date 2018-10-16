@@ -18,6 +18,7 @@ export default class EditableMessage extends Component {
       id: PropTypes.string.isRequired,
       sender: PropTypes.string.isRequired,
       body: PropTypes.string.isRequired,
+      createdAt: PropTypes.string.isRequired,
     }).isRequired,
   };
 
@@ -26,6 +27,13 @@ export default class EditableMessage extends Component {
 
     this.state = {
       text: props.message.body,
+      editMode: false,
+    };
+  }
+
+  UNSAFE_componentWillReceiveProps(nextProps) { // eslint-disable-line
+    this.state = {
+      text: nextProps.message.body,
       editMode: false,
     };
   }

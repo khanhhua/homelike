@@ -48,9 +48,10 @@ export default (state = Immutable.Map(), action) => {
     case ACTION_EDIT_MESSAGES: {
       const { id: channelId, messages = [] } = action.payload;
       return state.updateIn([channelId], (existingChats) => {
-        return messages.reduce((chats, message) =>
-          chats.set(chats.findIndex(item => item.get('id') === message.id), Immutable.fromJS(message)),
-          existingChats)
+        return messages.reduce((chats, message) => {
+          const index = chats.findIndex(item => item.get('id') === message.id);
+          return chats.mergeIn([index], Immutable.fromJS(message));
+        }, existingChats);
       });
     }
     case ACTION_REMOVE_MESSAGES: {
@@ -66,9 +67,10 @@ export default (state = Immutable.Map(), action) => {
     case ACTION_UPDATE_MESSAGE: {
       const { id: channelId, messages = [] } = action.payload;
       return state.updateIn([channelId], (existingChats) => {
-        return messages.reduce((chats, message) =>
-            chats.set(chats.findIndex(item => item.get('id') === message.id), Immutable.fromJS(message)),
-          existingChats)
+        return messages.reduce((chats, message) => {
+          const index = chats.findIndex(item => item.get('id') === message.id);
+          return chats.mergeIn([index], Immutable.fromJS(message));
+        }, existingChats)
       });
     }
     case ACTION_REMOVE_MESSAGE: {
