@@ -6,18 +6,14 @@ import chai, { expect } from 'chai';
 import makeApp from '../src/app';
 // eslint-disable-next-line import/named
 import { __RewireAPI__ as rewireApi } from '../src/auth';
+import { postExpect } from './helpers';
 
 describe('As new web user, I can register', () => {
   let app;
 
   describe('Bad Method Calls', () => {
     it('should reject request without email and password', async () => {
-      app = makeApp();
-      await supertest(app.callback())
-        .post('/api/v1/auth/register')
-        .set('Content-Type', 'application/json')
-        .send({})
-        .expect(400);
+      await postExpect('/api/v1/auth/register', {}, 400);
     });
   });
   describe('Registration', () => {
@@ -30,11 +26,11 @@ describe('As new web user, I can register', () => {
         },
       });
 
-      await supertest(app.callback())
+      const res = await supertest(app.callback())
         .post('/api/v1/auth/register')
         .set('Content-Type', 'application/json')
         .send({
-          email: 'user1',
+          email: 'user1@test.com',
           password: 'passpass',
         })
         .expect(200);
@@ -100,7 +96,7 @@ describe('As an existing chatter, I can login', () => {
         },
       });
 
-      await supertest(app.callback())
+      const res = await supertest(app.callback())
         .post('/api/v1/auth/login')
         .set('Content-Type', 'application/json')
         .send({
@@ -109,7 +105,7 @@ describe('As an existing chatter, I can login', () => {
         })
         .expect(200);
 
-      // expect(res.body.authToken).to.be.ok;
+      expect(res.body.authToken).to.be.ok;
     });
   });
 });

@@ -106,7 +106,7 @@ async function update(ctx) {
     });
     const updatedProfile = await User.updateOne({ _id: user.sub }, { $set: data })
       .exec()
-      .then(async () => User.findById(user.sub).select(projection).lean());
+      .then(async () => User.findById(user.sub).select(projection).lean().exec());
 
     dbg(`Updated ${user.sub}`);
 
