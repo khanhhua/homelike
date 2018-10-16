@@ -11,9 +11,8 @@ while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:9999/index.html)"
 do
     printf "."
     sleep 1;
-    echo
 done
-
+echo
 echo "Opening http://localhost:9999/index.html"
 
 open 'http://localhost:9999/index.html'
