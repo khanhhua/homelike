@@ -37,7 +37,9 @@ describe('As a logged in user, I would like to view my own profile', function ()
         email: 'user1@mailinator.com',
       };
       rewireApi.__Rewire__('User', {
-        findById(_id) { return mockQuery(profile); },
+        findById(_id) {
+          return mockQuery(profile);
+        },
       });
 
       const authedGet = withAccesToken(
@@ -48,10 +50,15 @@ describe('As a logged in user, I would like to view my own profile', function ()
     });
   });
 
+})
+
+describe('As a logged in user, I would like to list others\' prpfiles', function () {
   describe('List Profiles', () => {
     it('should list zero user profiles given no IDs', async () => {
       rewireApi.__Rewire__('User', {
-        find(_criteria) { return mockQuery([]); },
+        find(_criteria) {
+          return mockQuery([]);
+        },
       });
 
       const authedGet = withAccesToken(
@@ -79,7 +86,9 @@ describe('As a logged in user, I would like to view my own profile', function ()
           }
         ];
       rewireApi.__Rewire__('User', {
-        find(_criteria) { return mockQuery(profiles); },
+        find(_criteria) {
+          return mockQuery(profiles);
+        },
       });
 
       const authedGet = withAccesToken(
@@ -91,7 +100,9 @@ describe('As a logged in user, I would like to view my own profile', function ()
       expect(res.body.users).to.have.length(2);
     });
   });
+});
 
+describe('As a logged in user, I would like to update my own', function () {
   describe('Update Profile', () => {
     it('should update me my own profile', async () => {
       const updatedProfile = {

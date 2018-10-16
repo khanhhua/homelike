@@ -1,6 +1,4 @@
 /* eslint no-underscore-dangle: "off" */
-
-import supertest from 'supertest';
 import chai, { expect } from 'chai';
 
 import makeApp from '../src/app';
@@ -18,7 +16,6 @@ describe('As new web user, I can register', () => {
   });
   describe('Registration', () => {
     it('should register new user', async () => {
-      app = makeApp();
       rewireApi.__Rewire__('db', {
         User: {
           findOne({ email: _email }) { return { async exec() { return Promise.resolve(null); } }; },
@@ -26,18 +23,15 @@ describe('As new web user, I can register', () => {
         },
       });
 
-      const res = await supertest(app.callback())
-        .post('/api/v1/auth/register')
-        .set('Content-Type', 'application/json')
-        .send({
+      const res = await postExpect('/api/v1/auth/register',
+        {
           email: 'user1@test.com',
           password: 'passpass',
-        })
-        .expect(200);
+        }, 200);
+      expect(res.body.ok).to.be.true;
     });
 
     it('should reject existing email', async () => {
-      app = makeApp();
       rewireApi.__Rewire__('db', {
         User: {
           findOne({ email }) { return { async exec() { return Promise.resolve({ email }); } }; },
@@ -45,11 +39,9 @@ describe('As new web user, I can register', () => {
         },
       });
 
-      await supertest(app.callback())
-        .post('/api/v1/auth/register')
-        .set('Content-Type', 'application/json')
-        .send({})
-        .expect(400);
+      const res = await postExpect('/api/v1/auth/register', {}, 400);
+      expect(res.body.ok).to.be.false;
+      expect(res.body.errors).to.have.length(1);
     });
   });
 });
@@ -65,18 +57,14 @@ describe('As an existing chatter, I can login', () => {
         displayName: 'User One',
       };
 
-      app = makeApp();
       rewireApi.__Rewire__('db', {
         User: {
           findOne({ email: _email }) { return { async exec() { return Promise.resolve(user); } }; },
         },
       });
 
-      await supertest(app.callback())
-        .post('/api/v1/auth/login')
-        .set('Content-Type', 'application/json')
-        .send({})
-        .expect(400);
+      const res = await postExpect('/api/v1/auth/login', {}, 400);
+      expect(res.body.ok).to.be.false;
     });
   });
 
@@ -96,14 +84,11 @@ describe('As an existing chatter, I can login', () => {
         },
       });
 
-      const res = await supertest(app.callback())
-        .post('/api/v1/auth/login')
-        .set('Content-Type', 'application/json')
-        .send({
+      const res = await postExpect('/api/v1/auth/login',
+        {
           email: 'user1@test.com',
           password: 'passpass',
-        })
-        .expect(200);
+        }, 200);
 
       expect(res.body.authToken).to.be.ok;
     });

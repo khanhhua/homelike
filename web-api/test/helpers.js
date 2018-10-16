@@ -68,7 +68,7 @@ export async function postExpect(url, data, expectedStatus) {
     req.set('Authorization', `Bearer ${this.accessToken}`);
   }
 
-  return await req.send()
+  return await req.send(data)
     .expect(expectedStatus);
 }
 
