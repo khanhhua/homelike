@@ -4,7 +4,9 @@ import debug from 'debug';
 import moment from 'moment';
 import Router from 'koa-router';
 import { default as rp } from 'request-promise';
-import * as db from './db';
+import {
+  objectId, Channel, ChannelChunk, allocateChunk, queryMessagesByAnchor,
+} from './db';
 import { format } from './utils';
 
 const dbg = debug('web-api:messages');
@@ -52,12 +54,6 @@ async function broadcastChatMessage(type, channelId, message) {
   }
 }
 
-/**
- * Allocate a new channel chunk for storing new messages
- *
- * @param channelId {string}
- * @returns {Promise<string>}
- */
 async function list(ctx) {
   const { channelId } = ctx.params;
   const { anchor } = ctx.query; // anchor is timestamp to start query from
@@ -70,7 +66,7 @@ async function list(ctx) {
 
   try {
     dbg(`Listing messages for channel #${channelId} onwards from ${anchorISO || 'latest'}`);
-    const messages = await db.queryMessagesByAnchor(channelId, anchorISO);
+    const messages = await queryMessagesByAnchor(channelId, anchorISO);
 
     ctx.body = {
       ok: true,
@@ -91,13 +87,13 @@ async function edit(ctx) {
     const sender = user.sub;
     dbg(`User ${sender} editing one message located at #${channelId}/#${messageId}`);
 
-    const channel = await db.Channel.findById(channelId).lean().exec();
+    const channel = await Channel.findById(channelId).lean().exec();
     if (!channel) {
       ctx.throw(404, 'Channel not found');
     }
 
     dbg(`Updating chunk #${channel.activeChunk}...`);
-    const result = await db.ChannelChunk.updateOne(
+    const result = await ChannelChunk.updateOne(
       {
         _id: channel.activeChunk,
         messages: { $elemMatch: { _id: messageId, sender } },
@@ -138,13 +134,13 @@ async function remove(ctx) {
     const sender = user.sub;
     dbg(`User ${sender} removing one message located at #${channelId}/#${messageId}`);
 
-    const channel = await db.Channel.findById(channelId).lean().exec();
+    const channel = await Channel.findById(channelId).lean().exec();
     if (!channel) {
       ctx.throw(404, 'Channel not found');
     }
 
     dbg(`Removing chunk #${channel.activeChunk}...`);
-    const result = await db.ChannelChunk.updateOne(
+    const result = await ChannelChunk.updateOne(
       {
         _id: channel.activeChunk,
       },
@@ -184,19 +180,19 @@ async function create(ctx) {
     dbg('Sending message as:', user);
 
     const message = {
-      _id: db.objectId(),
+      _id: objectId(),
       sender: user.sub,
       body: text,
       createdAt: new Date(),
     };
     dbg(`Persisting new message for channel #${channelId}`);
 
-    await db.Channel.findByIdAndUpdate(channelId, { $addToSet: { chatters: user.sub } });
-    const channelChunkId = await db.allocateChunk(channelId);
+    await Channel.findByIdAndUpdate(channelId, { $addToSet: { chatters: user.sub } });
+    const channelChunkId = await allocateChunk(channelId);
 
     await new Promise(async (resolve, reject) => {
       dbg(`Pushing new message to chunk #${channelChunkId}...`);
-      db.ChannelChunk.updateOne({ _id: channelChunkId }, { $push: { messages: message } }, (err, stats) => {
+      ChannelChunk.updateOne({ _id: channelChunkId }, { $push: { messages: message } }, (err, stats) => {
         if (err) {
           return reject(err);
         }

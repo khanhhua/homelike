@@ -1,8 +1,7 @@
 import Router from 'koa-router';
 import debug from 'debug';
-// import _get from 'lodash.get';
 import moment from 'moment';
-import * as db from './db';
+import { Channel, queryMessagesByAnchor } from './db';
 import { format } from './utils';
 
 const dbg = debug('web-api:channels');
@@ -10,7 +9,7 @@ const dbg = debug('web-api:channels');
 async function list(ctx) {
   try {
     dbg('Listing all channels');
-    const channels = await db.Channel.find({}, null, { limit: 10 }).lean().exec();
+    const channels = await Channel.find({}, null, { limit: 10 }).lean().exec();
 
     ctx.body = {
       ok: true,
@@ -32,12 +31,12 @@ async function view(ctx) {
 
   try {
     dbg(`Viewing one channel #${channelId}`);
-    const channel = await db.Channel.findById(channelId).lean().exec();
+    const channel = await Channel.findById(channelId).lean().exec();
     dbg(`Filtering messages by ${anchorISO || 'latest'}`);
 
     let messages;
     try {
-      messages = await db.queryMessagesByAnchor(channelId, anchorISO);
+      messages = await queryMessagesByAnchor(channelId, anchorISO);
     } catch (e) {
       if (e.status === 404) {
         messages = [];

@@ -113,6 +113,12 @@ export function objectId() {
   return mongoose.Types.ObjectId();
 }
 
+/**
+ * Allocate a new channel chunk for storing new messages
+ *
+ * @param channelId {string}
+ * @returns {Promise<string>}
+ */
 export async function allocateChunk(channelId) {
   const today = moment().utc().startOf('day');
   let newChunkExpiry = null;

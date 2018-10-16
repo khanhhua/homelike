@@ -14,7 +14,7 @@ export async function post(url, data) {
     req.set('Authorization', `Bearer ${this.accessToken}`);
   }
 
-  return await seq.send(data);
+  await seq.send(data);
 }
 
 export async function get(url, data) {
@@ -27,7 +27,7 @@ export async function get(url, data) {
     req.set('Authorization', `Bearer ${this.accessToken}`);
   }
 
-  return await seq.send(data);
+  await seq.send(data);
 }
 
 export async function put(url, data, expectedStatus) {
@@ -40,7 +40,7 @@ export async function put(url, data, expectedStatus) {
     req.set('Authorization', `Bearer ${this.accessToken}`);
   }
 
-  return await req.send(data);
+  return req.send(data);
 }
 
 
@@ -68,7 +68,7 @@ export async function postExpect(url, data, expectedStatus) {
     req.set('Authorization', `Bearer ${this.accessToken}`);
   }
 
-  return await req.send(data)
+  return req.send(data)
     .expect(expectedStatus);
 }
 
@@ -82,6 +82,37 @@ export async function putExpect(url, data, expectedStatus) {
     req.set('Authorization', `Bearer ${this.accessToken}`);
   }
 
-  return await req.send(data)
+  return req.send(data)
     .expect(expectedStatus);
+}
+
+export async function delExpect(url, expectedStatus) {
+  const app = makeApp();
+  const req = supertest(app.callback())
+    .delete(url)
+    .set('Content-Type', 'application/json');
+
+  if (this && this.accessToken) {
+    req.set('Authorization', `Bearer ${this.accessToken}`);
+  }
+
+  return req.send()
+    .expect(expectedStatus);
+}
+
+export function mockQuery(result) {
+  return {
+    select() {
+      return this;
+    },
+    limit() {
+      return this;
+    },
+    lean() {
+      return this;
+    },
+    exec() {
+      return Promise.resolve(result);
+    },
+  };
 }

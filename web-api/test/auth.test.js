@@ -1,5 +1,5 @@
 /* eslint no-underscore-dangle: "off" */
-import chai, { expect } from 'chai';
+import { expect } from 'chai';
 
 import makeApp from '../src/app';
 // eslint-disable-next-line import/named
@@ -7,8 +7,6 @@ import { __RewireAPI__ as rewireApi } from '../src/auth';
 import { postExpect } from './helpers';
 
 describe('As new web user, I can register', () => {
-  let app;
-
   describe('Bad Method Calls', () => {
     it('should reject request without email and password', async () => {
       await postExpect('/api/v1/auth/register', {}, 400);

@@ -1,28 +1,11 @@
 /* eslint no-underscore-dangle: "off" */
-import chai, { expect } from 'chai';
+import { expect } from 'chai';
 // eslint-disable-next-line import/named
 import { __RewireAPI__ as rewireApi } from '../src/profile';
-import { getExpect, putExpect, withAccesToken} from './helpers';
+import { getExpect, mockQuery, putExpect, withAccesToken } from './helpers';
 
-function mockQuery(result) {
-  return {
-    select() {
-      return this;
-    },
-    limit() {
-      return this;
-    },
-    lean() {
-      return this;
-    },
-    exec() {
-      return Promise.resolve(result);
-    }
-  };
-}
-
-describe('As a logged in user, I would like to view my own profile', function () {
-  describe('Bad Method Calls', function () {
+describe('As a logged in user, I would like to view my own profile', () => {
+  describe('Bad Method Calls', () => {
     it('shoud reject unauthorized access', async () => {
       await getExpect('/api/v1/profile', {}, 401);
     });
@@ -43,16 +26,16 @@ describe('As a logged in user, I would like to view my own profile', function ()
       });
 
       const authedGet = withAccesToken(
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
-        'eyJzdWIiOiJ1MSIsInVzZXJuYW1lIjoidXNlcjEiLCJpYXQiOjE1MTYyMzkwMjJ9.' +
-        '9GcSD5oGwzeTzEF1IGT5F3GuREXq0lNjdAsLSgDrnwE', getExpect);
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'
+        + 'eyJzdWIiOiJ1MSIsInVzZXJuYW1lIjoidXNlcjEiLCJpYXQiOjE1MTYyMzkwMjJ9.'
+        + '9GcSD5oGwzeTzEF1IGT5F3GuREXq0lNjdAsLSgDrnwE', getExpect,
+      );
       await authedGet('/api/v1/profile', 200);
     });
   });
+});
 
-})
-
-describe('As a logged in user, I would like to list others\' prpfiles', function () {
+describe('As a logged in user, I would like to list others\' prpfiles', () => {
   describe('List Profiles', () => {
     it('should list zero user profiles given no IDs', async () => {
       rewireApi.__Rewire__('User', {
@@ -62,29 +45,29 @@ describe('As a logged in user, I would like to list others\' prpfiles', function
       });
 
       const authedGet = withAccesToken(
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
-        'eyJzdWIiOiJ1MSIsInVzZXJuYW1lIjoidXNlcjEiLCJpYXQiOjE1MTYyMzkwMjJ9.' +
-        '9GcSD5oGwzeTzEF1IGT5F3GuREXq0lNjdAsLSgDrnwE', getExpect);
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'
+        + 'eyJzdWIiOiJ1MSIsInVzZXJuYW1lIjoidXNlcjEiLCJpYXQiOjE1MTYyMzkwMjJ9.'
+        + '9GcSD5oGwzeTzEF1IGT5F3GuREXq0lNjdAsLSgDrnwE', getExpect,
+      );
       const res = await authedGet('/api/v1/users?ids=u2,u3', 200);
       expect(res.body.users).to.be.ok;
       expect(res.body.users).to.have.length(0);
     });
     it('should list user profiles for a given array of IDs', async () => {
-      const profiles =
-        [
-          {
-            id: 'u2',
-            displayName: 'User Two',
-            username: 'user2',
-            email: 'user2@mailinator.com',
-          },
-          {
-            id: 'u3',
-            displayName: 'User Three',
-            username: 'user3',
-            email: 'user3@mailinator.com',
-          }
-        ];
+      const profiles = [
+        {
+          id: 'u2',
+          displayName: 'User Two',
+          username: 'user2',
+          email: 'user2@mailinator.com',
+        },
+        {
+          id: 'u3',
+          displayName: 'User Three',
+          username: 'user3',
+          email: 'user3@mailinator.com',
+        },
+      ];
       rewireApi.__Rewire__('User', {
         find(_criteria) {
           return mockQuery(profiles);
@@ -92,9 +75,10 @@ describe('As a logged in user, I would like to list others\' prpfiles', function
       });
 
       const authedGet = withAccesToken(
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
-        'eyJzdWIiOiJ1MSIsInVzZXJuYW1lIjoidXNlcjEiLCJpYXQiOjE1MTYyMzkwMjJ9.' +
-        '9GcSD5oGwzeTzEF1IGT5F3GuREXq0lNjdAsLSgDrnwE', getExpect);
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'
+        + 'eyJzdWIiOiJ1MSIsInVzZXJuYW1lIjoidXNlcjEiLCJpYXQiOjE1MTYyMzkwMjJ9.'
+        + '9GcSD5oGwzeTzEF1IGT5F3GuREXq0lNjdAsLSgDrnwE', getExpect,
+      );
       const res = await authedGet('/api/v1/users?ids=u2,u3', 200);
       expect(res.body.users).to.be.ok;
       expect(res.body.users).to.have.length(2);
@@ -102,7 +86,7 @@ describe('As a logged in user, I would like to list others\' prpfiles', function
   });
 });
 
-describe('As a logged in user, I would like to update my own', function () {
+describe('As a logged in user, I would like to update my own', () => {
   describe('Update Profile', () => {
     it('should update me my own profile', async () => {
       const updatedProfile = {
@@ -118,9 +102,10 @@ describe('As a logged in user, I would like to update my own', function () {
       });
 
       const authedPut = withAccesToken(
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
-        'eyJzdWIiOiJ1MSIsInVzZXJuYW1lIjoidXNlcjEiLCJpYXQiOjE1MTYyMzkwMjJ9.' +
-        '9GcSD5oGwzeTzEF1IGT5F3GuREXq0lNjdAsLSgDrnwE', putExpect);
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'
+        + 'eyJzdWIiOiJ1MSIsInVzZXJuYW1lIjoidXNlcjEiLCJpYXQiOjE1MTYyMzkwMjJ9.'
+        + '9GcSD5oGwzeTzEF1IGT5F3GuREXq0lNjdAsLSgDrnwE', putExpect,
+      );
       const res = await authedPut('/api/v1/profile',
         {
           displayName: 'Pink',
@@ -144,9 +129,10 @@ describe('As a logged in user, I would like to update my own', function () {
       });
 
       const authedPut = withAccesToken(
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
-        'eyJzdWIiOiJ1MSIsInVzZXJuYW1lIjoidXNlcjEiLCJpYXQiOjE1MTYyMzkwMjJ9.' +
-        '9GcSD5oGwzeTzEF1IGT5F3GuREXq0lNjdAsLSgDrnwE', putExpect);
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'
+        + 'eyJzdWIiOiJ1MSIsInVzZXJuYW1lIjoidXNlcjEiLCJpYXQiOjE1MTYyMzkwMjJ9.'
+        + '9GcSD5oGwzeTzEF1IGT5F3GuREXq0lNjdAsLSgDrnwE', putExpect,
+      );
       const res = await authedPut('/api/v1/profile',
         {
           id: 'u1someone',
