@@ -60,8 +60,9 @@ export default class TalkBox extends Component {
           <ButtonGroup vertical className={styles['button-group']}>
             <Button
               className="btn-primary"
+              disabled={text.trim().length === 0}
               onClick={() => {
-                onSend(text).then(onComplete);
+                onSend(text.trim()).then(onComplete);
               }}
             >
               Update
@@ -81,6 +82,7 @@ export default class TalkBox extends Component {
           <ButtonGroup vertical className={styles['button-group']}>
             <Button
               className="btn-primary"
+              disabled={text.trim().length === 0}
               onClick={() => {
                 onSend(text).then(() => this.setState({ text: '' }));
               }}

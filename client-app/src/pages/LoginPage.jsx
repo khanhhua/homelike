@@ -1,21 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
-  FormGroup, ControlLabel, FormControl, Grid, Row, Col, Button, Alert,
+  FormGroup, ControlLabel, FormControl, Grid, Row, Col, Button,
 } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import * as actions from '../store/actions';
 
 import styles from './login-page.module.scss';
+import ErrorBox from '../components/ErrorBox';
 
 class LoginPage extends Component {
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
-    error: PropTypes.object,
-  };
-
-  static defaultProps = {
-    error: null,
   };
 
   state = {
@@ -29,7 +25,7 @@ class LoginPage extends Component {
     const {
       registering, email, password, repassword,
     } = this.state;
-    const { error, dispatch } = this.props;
+    const { dispatch } = this.props;
 
     return (
       <div className={styles['login-page']}>
@@ -40,11 +36,7 @@ class LoginPage extends Component {
               <p>Where we developers come, talk and slack-alike</p>
 
               <div className={styles.form}>
-                {!!error
-                && (
-                  <Alert bsStyle="danger">
-                    Could not log you in
-                  </Alert>)}
+                <ErrorBox />
                 <FormGroup>
                   <ControlLabel>Email</ControlLabel>
                   <FormControl
@@ -122,9 +114,8 @@ class LoginPage extends Component {
   }
 }
 
-const mapStateToProps = state => (
-  {
-    error: state.getIn(['auth', 'error']) ? state.getIn(['auth', 'error']) : null,
-  });
+const mapStateToProps = state => ({
+  error: state.getIn(['error']) ? state.getIn(['error']) : null,
+});
 
 export default connect(mapStateToProps, dispatch => ({ dispatch }))(LoginPage);

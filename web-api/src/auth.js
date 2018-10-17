@@ -22,7 +22,7 @@ async function authenticate(ctx) {
     const user = await db.User.findOne({ email, password: hashedPass }).exec();
 
     if (!user) {
-      ctx.throw(403, 'Not authorized');
+      ctx.throw(403, 'Email/password does not exist');
     }
 
     const authToken = jwt.sign(

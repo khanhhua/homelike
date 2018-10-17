@@ -14,6 +14,7 @@ import ChatDetail from '../components/ChatDetail';
 import { loadChannels, selectChannel, loadProfile } from '../store/actions';
 import ChatterBadge from '../components/ChatterBadge';
 import Welcome from '../components/Welcome';
+import ErrorBox from '../components/ErrorBox';
 
 const LOGIN_URL = process.env.REACT_APP_LOGIN_URL || '/';
 let modalPromise;
@@ -94,6 +95,11 @@ class ChatPage extends Component {
     return (
       <div className="chat-page">
         <Grid>
+          <Row>
+            <Col xs={12}>
+              <ErrorBox />
+            </Col>
+          </Row>
           <Row>
             <Col xs={12} sm={3} md={4} className="sidebar">
               <>

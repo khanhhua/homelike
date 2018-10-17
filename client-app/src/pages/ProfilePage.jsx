@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import { goBack } from 'react-router-redux';
 import * as actions from '../store/actions';
 import styles from './profile-page.module.scss';
+import ErrorBox from '../components/ErrorBox';
 
 const LOGIN_URL = process.env.REACT_APP_LOGIN_URL || '/';
 
@@ -50,6 +51,11 @@ class ProfilePage extends Component {
     return (
       <div className={styles['profile-page']}>
         <Grid>
+          <Row>
+            <Col>
+              <ErrorBox />
+            </Col>
+          </Row>
           <Row>
             <Col xs={12} md={12}>
               <h2>User profile</h2>

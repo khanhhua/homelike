@@ -13,6 +13,7 @@ import * as actions from '../store/actions';
 import styles from './profile-page.module.scss';
 
 import timezones from './timezones.json';
+import ErrorBox from '../components/ErrorBox';
 
 const LOGIN_URL = process.env.REACT_APP_LOGIN_URL || '/';
 
@@ -25,7 +26,7 @@ function isRequired(value) {
 }
 
 function hasErrors(errors) {
-  return !!Object.keys(errors).length;
+  return !!Object.entries(errors).filter(([, value]) => Boolean(value)).length;
 }
 
 class EditProfilePage extends Component {
@@ -103,7 +104,14 @@ class EditProfilePage extends Component {
     return ({ target: { value } }) => {
       const error = errorCheck(value);
       if (!error) {
-        this.setState({ [fieldName]: value });
+        const { errors } = this.state;
+        this.setState({
+          [fieldName]: value,
+          errors: {
+            ...errors,
+            [`${fieldName}`]: undefined,
+          },
+        });
       } else {
         this.setState({
           [fieldName]: value,
@@ -127,6 +135,11 @@ class EditProfilePage extends Component {
     return (
       <div className={styles['profile-page']}>
         <Grid>
+          <Row>
+            <Col xs={12}>
+              <ErrorBox />
+            </Col>
+          </Row>
           <Row>
             <Col xs={12} md={12}>
               <h2>Edit your profile</h2>

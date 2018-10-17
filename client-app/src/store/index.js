@@ -6,6 +6,7 @@ import Immutable from 'immutable';
 
 import thunk from 'redux-thunk';
 
+import error from './error';
 import auth from './auth';
 import users from './users';
 import chats from './chats';
@@ -14,6 +15,7 @@ import active from './active';
 import profile from './profile';
 
 const rootReducer = combineReducers({
+  error,
   profile,
   auth,
   users,
