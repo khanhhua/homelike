@@ -22,7 +22,7 @@ let modalPromise;
 class ChatPage extends Component {
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
-    auth: PropTypes.func.isRequired,
+    auth: PropTypes.object.isRequired,
     users: PropTypes.object.isRequired,
     profile: PropTypes.object.isRequired,
     channels: PropTypes.array.isRequired,
